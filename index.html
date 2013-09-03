@@ -1,0 +1,249 @@
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/globalize.js"></script>
+<script src="/js/alarms.js"></script>
+<script src="/js/main.js"></script>
+
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+<link href="/css/bootstrap-responsive.min.css" rel="stylesheet">
+<link href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" rel="stylesheet">
+
+<style type="text/css">
+body{
+	 background:#202020;
+	 font:bold 12px Arial, Helvetica, sans-serif;
+	 margin:0;
+	 padding:0;
+	 min-width:960px;
+	 color:#bbbbbb; 
+}
+.container {width: 960px; margin: 0 auto; overflow: hidden;}
+
+.center {margin-left: auto; margin-right: auto; position:relative; text-align: center;
+border-collapse:separate;
+border-spacing: 5px;
+}
+
+#settings-container{display:none;}
+
+.clock {width:800px; margin:0 auto; padding:10px; border:1px solid #333; color:#fff; }
+
+#Date { font-family:'BebasNeueRegular', Arial, Helvetica, sans-serif; font-size:36px; text-align:center; text-shadow:0 0 5px #00c6ff; }
+
+ul { width:800px; margin:0 auto; padding:0px; list-style:none; text-align:center; }
+ul li { display:inline; font-size:10em; text-align:center; font-family:'BebasNeueRegular', Arial, Helvetica, sans-serif; text-shadow:0 0 5px #00c6ff; }
+
+#point { position:relative; padding-left:10px; padding-right:10px; }
+
+i {cursor: pointer;}
+
+.time{
+height: 40px !important;
+width: 50px !important;
+}
+
+.time-column{
+border-spacing: 2px;
+}
+
+</style>
+
+<script>
+  var socket = io.connect('http://localhost');
+  socket.on('connect', function() {
+  console.log("Connected to Server");
+  });
+  socket.on('news', function (data) {
+    console.log(data);
+    socket.emit('my other event', { my: 'data' });
+  });
+  
+  socket.on('msgconfirm', function(con){
+  console.log(con);
+  $('#confirmdiv').html(con);
+  });
+
+  socket.on('audio-stream', function(data){
+  
+var htmlstring = '<audio autoplay><source type="audio/mpeg" src="' + data + '" ></audio>';
+$('#audiospace').html(htmlstring);
+});
+  
+  var alarm = Alarm;
+  
+  var alarmtime="";
+  var alarmdate = "";
+  var alarmtype = "basicAlarm";
+  var snoozecount = 0;
+  function setAlarmSong(){
+    var selectedsong = $('#songs').val();
+    console.log(selectedsong);
+    alarm.alarmsong = selectedsong;
+  }
+  
+  $(document).ready(function() {
+// Create two variable with the names of the months and days in an array
+var monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ]; 
+var dayNames= ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
+
+// Create a newDate() object
+var newDate = new Date();
+// Extract the current date from Date object
+newDate.setDate(newDate.getDate());
+// Output the day, date, month and year    
+$('#Date').html(dayNames[newDate.getDay()] + " " + newDate.getDate() + ' ' + monthNames[newDate.getMonth()] + ' ' + newDate.getFullYear());
+
+setInterval( function() {
+	// Create a newDate() object and extract the seconds of the current time on the visitor's
+	var seconds = new Date().getSeconds();
+	// Add a leading zero to seconds value
+	$("#sec").html(( seconds < 10 ? "0" : "" ) + seconds);
+	},1000);
+	
+setInterval( function() {
+	// Create a newDate() object and extract the minutes of the current time on the visitor's
+	var minutes = new Date().getMinutes();
+	// Add a leading zero to the minutes value
+	$("#min").html(( minutes < 10 ? "0" : "" ) + minutes);
+    },1000);
+	
+setInterval( function() {
+	// Create a newDate() object and extract the hours of the current time on the visitor's
+	var hours = new Date().getHours();
+	var miltime = $('.active', '#timeselect').val()
+	// Add a leading zero to the hours value
+	$("#hours").html(( hours < 10 ? "" : hours > 12 ? -1*miltime : "" ) + hours);
+    }, 1000);
+	
+});
+
+/*setInterval(function(){
+if(alarmtime !=""){
+alarmoff = alarm.checkAlarm(alarmdate, alarmtime);
+if(alarmoff){
+alarm[alarmtype]();
+}
+}
+},1000);*/
+
+
+function hideAmPm(){
+$('#ampm').hide();
+}
+function showAmPm(){
+$('#ampm').show();
+}
+function toggleSettings(){
+$('#settings-container').slideToggle();
+}
+
+$.widget( "ui.timespinner", $.ui.spinner, {
+    options: {
+      // seconds
+      step: 60 * 1000,
+      // hours
+      page: 60
+    },
+ 
+    _parse: function( value ) {
+      if ( typeof value === "string" ) {
+        // already a timestamp
+        if ( Number( value ) == value ) {
+          return Number( value );
+        }
+        return +Globalize.parseDate( value );
+      }
+      return value;
+    },
+ 
+    _format: function( value ) {
+      return Globalize.format( new Date(value), "t" );
+    }
+  });
+
+$(document).ready(function(){
+$('#alarm-time').timespinner();
+});
+
+
+function toggleAlarm(){
+if(alarmtime == ""){
+alarmtime = $('#alarm-time').val();
+alarm.time =  $('#alarm-time').val();
+now = new Date();
+nowtime = now.getHours() + ":" + now.getMinutes();
+console.log('Now Time is: ' + nowtime);
+amdate = new Date('08/31/2013 ' + alarmtime);
+nowdate = new Date('08/31/2013 ' + nowtime);
+console.log("Now Time is: " + nowdate + " and alarm time is: " + amdate);
+setdate = new Date();
+(amdate < nowdate) ? setdate.setDate(new Date().getDate() + 1): setdate.setDate(new Date().getDate());
+alarmdate = setdate.getMonth()+1 +"/" + setdate.getDate() + "/" + setdate.getFullYear();
+alarm.date = alarmdate;
+alarm.setAlarm();
+console.log(alarmdate);
+$('#alarm-button').text('Unset Alarm');
+$('#alarm-icon').tooltip({title: alarmtime, placement: 'bottom', trigger: 'hover click'});
+$('#alarm-icon').show();
+}
+else{
+alarmtime = "";
+alarmdate = "";
+alarm.unsetAlarm();
+$('#alarm-button').text('Set Alarm');
+$('#alarm-icon').hide();
+$('#alarm-icon').tooltip('destroy');
+}
+}
+
+</script>
+</head>
+
+<body>
+
+<div class="clock">
+<i onclick='toggleSettings()' class='icon-cog pull-left icon-white'></i><i id='alarm-icon' style='display:none;'class='icon-bell pull-right icon-white'></i>
+<br/><br/>
+<div id="Date">Saturday 31 August 2013</div>
+<br/><br/><br/>
+<ul>
+	<li id="hours">13</li>
+    <li>:</li>
+    <li id="min">18</li>
+    <li id="point">:</li>
+    <li id="sec">40</li>
+	<li id="ampm">PM</li>
+</ul>
+<br/><br/>
+</div>
+<br/>
+<div id='settings-container' class='center'>
+<h3> Set Alarm Time</h3>
+<br/>
+<span id='alarm-section'>
+<input name="spinner" id='alarm-time' value="12:00 AM" /> 
+<button type="button" onclick='toggleAlarm()' id='alarm-button' class="btn btn-primary btn-small">Set Alarm</button>
+</span>
+<br/><br/>
+<span class="btn-group" id="timeselect" data-toggle="buttons-radio">
+<button type='button' value="12" onclick='showAmPm()'  class='btn btn-primary active'>12 Hour Time</button>
+<button type='button' value="0" onclick='hideAmPm()' class='btn btn-primary'>24 Hour Time</button>
+</span>
+<br/><br/>
+<span class="btn-group" id="timeselect" data-toggle="buttons-radio">
+<button type='button' value="basicAlarm" onclick='alarm.setAlarmType("basicAlarm")'  class='btn btn-primary active'>Basic Alarm</button>
+<button type='button' value="musicAlarm" onclick='alarm.setAlarmType("musicAlarm")' class='btn btn-primary'>Music Alarm</button>
+</span>
+<select onblur="setAlarmSong()" id="songs">
+<option value = "">Select a Song</option>
+<option value="avicci.mp3">Wake Me Up - Avicii</option>
+</select>
+</div>
+<div id='audiospace'></div>
+</body>
+</html>
+

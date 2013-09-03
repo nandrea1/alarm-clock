@@ -7,6 +7,7 @@
 <script src="/js/globalize.js"></script>
 <script src="/js/alarms.js"></script>
 <script src="/js/main.js"></script>
+<script src="/js/jquery.cookie.js"></script>
 
 <link href="/css/bootstrap.min.css" rel="stylesheet">
 <link href="/css/bootstrap-responsive.min.css" rel="stylesheet">
@@ -54,6 +55,8 @@ border-spacing: 2px;
 
 <script>
   var socket = io.connect('http://localhost');
+  var socketid = "";
+  var username = "";
   socket.on('connect', function() {
   console.log("Connected to Server");
   });
@@ -66,11 +69,20 @@ border-spacing: 2px;
   console.log(con);
   $('#confirmdiv').html(con);
   });
+  
+  socket.on('alarm-event', function(data){
+  console.log('Alarm Event Detected');
+  console.log(data);
+  }
 
   socket.on('audio-stream', function(data){
   
 var htmlstring = '<audio autoplay><source type="audio/mpeg" src="' + data + '" ></audio>';
 $('#audiospace').html(htmlstring);
+});
+
+socket.on('socket-id', function(data){
+socketid = data.socketid;
 });
   
   var alarm = Alarm;
@@ -89,6 +101,24 @@ $('#audiospace').html(htmlstring);
 // Create two variable with the names of the months and days in an array
 var monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ]; 
 var dayNames= ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
+
+$.get('http://localhost:8080/getCookie/userid', function(data){
+if(data == "" || data == undefined){
+$.get('http://localhost:8080/getCookie/sid',function(data){
+username = data; 
+$.get('http://localhost:8080/addSocket/' + username + '/' + socketid, function(data){
+console.log(data.message);
+});
+});
+}
+else{
+username = data;
+$.get('http://localhost:8080/addSocket/' + username + '/' + socketid, function(data){
+console.log(data.message);
+});
+}
+
+});
 
 // Create a newDate() object
 var newDate = new Date();
@@ -244,6 +274,7 @@ $('#alarm-icon').tooltip('destroy');
 </select>
 </div>
 <div id='audiospace'></div>
+<iframe id='audioframe' style="display:none;"></iframe>
 </body>
 </html>
 

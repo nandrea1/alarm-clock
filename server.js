@@ -13,7 +13,7 @@ var app = require('express')()
 var path = require('path');
 app.use(express.cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.cookieSession({ store: store, secret: '123456', key: 'sid' }));
+app.use(express.cookieSession({ store: store, secret: 'secretkeysareforalarms', key: 'sid' }));
 server.listen(8080);
 
 app.get('/', function (req, res) {
@@ -34,17 +34,29 @@ app.get('/listClients', function (req, res){
 console.log(clients);
 });
 
+app.get('/listUsers', function(req, res){
+console.log(users);
+res.send(users);
+});
+
 app.get('/addSocket/:username/:socketid', function (req, res){
 var username = req.params.username;
 var socketid = req.params.socketid;
 var curruser = users[username];
 if(curruser == "" || curruser == undefined){
-users[username] = username;
-var socketarray = new Array();
-socketarray.push(socketid);
-users[username].sockets = socketarray;
+var currentuser = new Object();
+currentuser.username = username;
+currentuser.sockets = new Array();
+currentuser.sockets.push(socketid);
+users[username] = currentuser;
+console.log('socket id: '+ socketid);
 }
+else{
+users[username]['sockets'] = new Array();
+users[username].sockets.push(socketid);
 }
+res.send(users);
+});
 
 setInterval(function(){
 for (i=0; i<alarms.length; i++){

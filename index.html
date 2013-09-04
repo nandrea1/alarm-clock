@@ -57,6 +57,7 @@ border-spacing: 2px;
   var socket = io.connect('http://localhost');
   var socketid = "";
   var username = "";
+  var sessionid = "";
   socket.on('connect', function() {
   console.log("Connected to Server");
   });
@@ -73,7 +74,11 @@ border-spacing: 2px;
   socket.on('alarm-event', function(data){
   console.log('Alarm Event Detected');
   console.log(data);
-  }
+  });
+  
+  socket.on('session-id', function(data){
+  sessionid = data.sessionid;
+  });
 
   socket.on('audio-stream', function(data){
   
@@ -83,6 +88,7 @@ $('#audiospace').html(htmlstring);
 
 socket.on('socket-id', function(data){
 socketid = data.socketid;
+
 });
   
   var alarm = Alarm;
@@ -106,15 +112,24 @@ $.get('http://localhost:8080/getCookie/userid', function(data){
 if(data == "" || data == undefined){
 $.get('http://localhost:8080/getCookie/sid',function(data){
 username = data; 
-$.get('http://localhost:8080/addSocket/' + username + '/' + socketid, function(data){
-console.log(data.message);
+console.log('username is: ' + username);
+console.log('socket id is: ' + socketid);
+var socketstring = 'http://localhost:8080/addSocket/' + encodeURIComponent(username) + '/' + socketid;
+//socketstring = encodeURIComponent(socketstring);
+console.log('socket string is: ' + socketstring);
+$.get(socketstring, function(data){
+console.log(data);
 });
 });
 }
 else{
 username = data;
-$.get('http://localhost:8080/addSocket/' + username + '/' + socketid, function(data){
-console.log(data.message);
+console.log('username is: ' + username);
+var socketstring = 'http://localhost:8080/addSocket/' + encodeURIComponent(username) + '/' + socketid;
+//socketstring = encodeURIComponent(socketstring);
+console.log('socket string is: ' + socketstring);
+$.get(socketstring, function(data){
+console.log(data);
 });
 }
 

@@ -17,7 +17,7 @@ app.use(express.cookieSession({ store: store, secret: 'secretkeysareforalarms', 
 server.listen(8080);
 
 app.get('/', function (req, res) {
-  res.sendfile(__dirname + '/index.html');
+  res.sendfile(__dirname + '/index2.html');
 });
 
 app.get('/getAlarms/:userid', function (req, res){

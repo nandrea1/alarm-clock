@@ -55,7 +55,7 @@ io.set('authorization', function(data, accept){
 });
 
 app.get('/', function (req, res) {
-  res.sendfile(__dirname + '/index.html');
+  res.sendfile(__dirname + '/index2.html');
 });
 
 app.get('/getAlarms/:userid', function (req, res){

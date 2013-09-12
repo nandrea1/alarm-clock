@@ -1,9 +1,18 @@
 var houroffset = 12;
+var socketid = "";
+var username = "";
+var sessionid = "";
+  
 
 function getAudio(audiofile){
 	var htmlstring = '<audio autoplay><source type="audio/mpeg" src="' + audiofile + '" ></audio>';
 $('#audiospace').html(htmlstring);
 }
+
+function customEvent(eventname, data){
+socket.emit(eventname, data);
+}
+
 
 $(window).resize(function(){
 var winheight = $(window).height();

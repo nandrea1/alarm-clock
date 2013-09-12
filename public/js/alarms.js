@@ -38,7 +38,8 @@ unsetAlarm: function(){
 
 setAlarmType: function(type){
 this.alarm_type = type;
-}
+},
 
+create: function(){return this;}
 
 }

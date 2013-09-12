@@ -17,6 +17,70 @@ app.use(express.cookieSession({ store: sessionStore, secret: 'secretkeysareforal
 server.listen(8080);
 
 
+app.get('/', function (req, res) {
+  res.sendfile(__dirname + '/index2.html');
+});
+
+
+app.get('/getAudio/:filename', function (req, res){
+var filename = req.params.filename;
+var filestring = filehome + filename;
+res.sendfile(filestring);
+});
+
+app.get('/listClients', function (req, res){
+console.log(clients);
+res.send(clients);
+});
+
+app.get('/listUsers', function(req, res){
+console.log(users);
+res.send(users);
+});
+
+
+setInterval(function(){
+for (i=0; i<alarms.length; i++){
+//console.log('Alarm Found!');
+var curralarm = alarms[i];
+//console.log('Number of alarms is: ' + alarms.length);
+var now = new Date();
+var alarmdate = new Date(curralarm.datetime);
+//console.log('Now is: ' + now.getTime());
+//console.log('Alarm Date is: ' + alarmdate.getTime());
+//console.log('Alarm Set status is: ' + curralarm.set);
+if(now.getTime() >= alarmdate.getTime() && curralarm.set == true){
+console.log('Sending Alarm from check function');
+sendAlarm(curralarm.username, curralarm);
+}
+}
+//if(alarms.length == 0){console.log('Number of alarms is: ' + alarms.length);}
+},1000);
+
+function sendAlarm(username, alarm){
+console.log('alarm set by user ' + username + ' activated. alarm time was ' + alarm.datetime + ' and current time is ' + new Date());
+var curruser = users[username];
+var usersockets = curruser.sockets;
+var socketslength = usersockets.length;
+console.log('User ' + username + ' has ' + socketslength + ' sockets');
+for (var i=0; i<socketslength; i++){
+console.log('socket is: ' + usersockets[i]);
+var currsocket = usersockets[i];
+currsocket.emit('alarm-event', alarm);
+var alarmindex = alarms.indexOf(alarm);
+	if(alarmindex > -1){
+	alarms.splice(alarm, 1);
+	}
+}
+}
+
+function getSockets(username){
+var user = users[username];
+return user.sockets;
+}
+
+/////Socket IO Functions and Events/////
+
 
 io.set('authorization', function(data, accept){
  // check if there's a cookie header
@@ -28,22 +92,8 @@ io.set('authorization', function(data, accept){
         data.sessionID = data.cookie['sid'];
 		data.username = data.cookie['username'];
 		console.log('data.sessionID is: ' + data.sessionID);
+		console.log('username is: ' + data.username);
 		data.sessionStore = sessionStore;
-		console.log('data.sessionStore is: ' + data.sessionStore);
-        sessionStore.load(data.sessionID, function (err, session) {
-            if (err || !session) {
-				console.log('Error was: ' + err);
-				console.log('Session was: ' + session);
-				console.log('No Session Detected');
-                accept('Error', false);
-            } else {
-                // create a session object, passing data as request and our
-                // just acquired session data
-                data.session = session
-                accept(null, true);
-            }
-			
-        }); 
 		}
 		else {
        // if there isn't, turn down the connection with a message
@@ -54,71 +104,6 @@ io.set('authorization', function(data, accept){
     accept(null, true);
 });
 
-app.get('/', function (req, res) {
-  res.sendfile(__dirname + '/index2.html');
-});
-
-app.get('/getAlarms/:userid', function (req, res){
-
-});
-
-app.get('/getAudio/:filename', function (req, res){
-var filename = req.params.filename;
-var filestring = filehome + filename;
-res.sendfile(filestring);
-});
-
-app.get('/listClients', function (req, res){
-console.log(clients);
-});
-
-app.get('/listUsers', function(req, res){
-console.log(users);
-res.send(users);
-});
-
-app.get('/addSocket/:username/:socketid', function (req, res){
-var username = req.params.username;
-var socketid = req.params.socketid;
-var curruser = users[username];
-if(curruser == "" || curruser == undefined){
-var currentuser = new Object();
-currentuser.username = username;
-currentuser.sockets = new Array();
-currentuser.sockets.push(socketid);
-users[username] = currentuser;
-console.log('socket id: '+ socketid);
-}
-else{
-users[username]['sockets'] = new Array();
-users[username].sockets.push(socketid);
-}
-res.send(users);
-});
-
-setInterval(function(){
-for (i=0; i<alarms.length; i++){
-var curralarm = alarms[i];
-var now = new Date();
-if(now >= curralarm.alarmtime && curralarm.set == true){
-sendAlarm(curralarm.username, curralarm);
-}
-}
-},10000);
-
-function sendAlarm(username, alarm){
-var curruser = users[username];
-for (var i=0; i<curruser.sockets; i++){
-var currsocket = curruser.sockets[i];
-currsocket.emit('alarm-event', alarm);
-}
-}
-
-app.get('/getCookie/:cookie', function (req, res){
-var cookiename = req.params.cookie;
-var cookieval = req.cookies[cookiename]
-res.send(cookieval);
-});
 
 io.set('log level', 2);
 io.sockets.on('connection', function (socket) {
@@ -126,17 +111,80 @@ console.log('A socket with sessionID ' + socket.handshake.sessionID
         + ' connected!');
 	
 	clients[socket.id] = socket;
+	if(socket.handshake.username == undefined || socket.handshake.username == ""){
+	var currentusername = socket.handshake.sessionID;
+	}
+	else{
+	var currentusername = socket.handshake.username;
+	}
+	var curruser = users[currentusername];
+	if(curruser =="" || curruser == undefined){
+	curruser = new Object();
+	curruser.username = currentusername;
+	curruser.sockets = new Array();
+	curruser.sockets.push(socket);
+	curruser.sessionid = socket.handshake.sessionID;
+	users[currentusername] = curruser;
+	}
+	else{
+	curruser.sockets.push(socket);
+	users[currentusername] = curruser;
+	}
 	socket.emit('socket-id', {socketid: socket.id});
-  socket.emit('news', { hello: 'world' });
+	socket.emit('session-id', {sessionid: socket.handshake.sessionID});
+	
   socket.on('my other event', function (data) {
     console.log(data);
   });
+  
   socket.on('message', function(data){console.log("Message Sent Was: " + data);
   socket.emit('msgconfirm', 'Message successfully sent');
   });
+  
   socket.on('disconnect', function() {
+	var deletinguser = users[currentusername];
+	console.log('user ' + deletinguser.username + ' disconnected socket ' + socket.id);
+	var socketindex = deletinguser.sockets.indexOf(socket);
+	if(socketindex > -1){
+	deletinguser.sockets.splice(socketindex, 1);
+	}
+	else{
+	console.log('Could not find socket. Maybe was already disconnected?');
+	}
+	users[currentusername] = deletinguser;
     delete clients[socket.id];
   });
+  
+  socket.on('connected-clients', function(data){
+console.log(clients);
+});
+
+socket.on('connected-users', function(data){
+console.log(users);
+});
+
+socket.on('sockets-by-user', function(data){
+var user = users[data.username];
+console.log(user);
+});
+
+socket.on('add-alarm', function(data){
+console.log('adding alarm with date: ' + data.datetime);
+alarms.push(data);
+});
+
+socket.on('silence-alarm', function(data){
+var currsockets = getSockets(data.username);
+for(var i=0; i<currsockets.size(); i++){
+currsocket.emit('silence-alarm', {silencedate: new Date(), username: data.username});
+}
+});
+
+socket.on('list-alarms', function(data){
+console.log(alarms);
+});
+  
+  
   socket.on('play-song', function(data){
   	var filestring = "/nodeapps/public/files" + data;
 fs.readFile('/etc/hosts', 'utf8', function (err,data) {
@@ -145,5 +193,6 @@ fs.readFile('/etc/hosts', 'utf8', function (err,data) {
   }
   socket.emit('audio-stream',data);
 });
-  })
+  });
+  
 });

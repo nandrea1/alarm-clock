@@ -1,7 +1,7 @@
 var express =require('express');
 var fs = require('fs');
 var MemoryStore = express.session.MemoryStore;
-var store = new MemoryStore();
+var sessionStore = new MemoryStore();
 //var mongoose = require('mongoose');
 var filehome = "C:/nodeapps/alarm-clock/public/files/";
 var clients = {};
@@ -13,8 +13,46 @@ var app = require('express')()
 var path = require('path');
 app.use(express.cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.cookieSession({ store: store, secret: 'secretkeysareforalarms', key: 'sid' }));
+app.use(express.cookieSession({ store: sessionStore, secret: 'secretkeysareforalarms', key: 'sid' }));
 server.listen(8080);
+
+
+
+io.set('authorization', function(data, accept){
+ // check if there's a cookie header
+    if (data.headers.cookie) {
+        // if there is, parse the cookie
+        data.cookie = require('cookie').parse(data.headers.cookie)
+        // note that you will need to use the same key to grad the
+        // session id, as you specified in the Express setup.
+        data.sessionID = data.cookie['sid'];
+		data.username = data.cookie['username'];
+		console.log('data.sessionID is: ' + data.sessionID);
+		data.sessionStore = sessionStore;
+		console.log('data.sessionStore is: ' + data.sessionStore);
+        sessionStore.load(data.sessionID, function (err, session) {
+            if (err || !session) {
+				console.log('Error was: ' + err);
+				console.log('Session was: ' + session);
+				console.log('No Session Detected');
+                accept('Error', false);
+            } else {
+                // create a session object, passing data as request and our
+                // just acquired session data
+                data.session = session
+                accept(null, true);
+            }
+			
+        }); 
+		}
+		else {
+       // if there isn't, turn down the connection with a message
+       // and leave the function.
+       return accept('No cookie transmitted.', false);
+    }
+    // accept the incoming connection
+    accept(null, true);
+});
 
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
@@ -84,6 +122,9 @@ res.send(cookieval);
 
 io.set('log level', 2);
 io.sockets.on('connection', function (socket) {
+console.log('A socket with sessionID ' + socket.handshake.sessionID 
+        + ' connected!');
+	
 	clients[socket.id] = socket;
 	socket.emit('socket-id', {socketid: socket.id});
   socket.emit('news', { hello: 'world' });

@@ -7,7 +7,10 @@ $('#audiospace').html(htmlstring);
 
 $(window).resize(function(){
 var winheight = $(window).height();
-$('#clock_container').css('margin-top', ((winheight/2)-40)+"px");
+var clockheight = $('#clock_container').height();
+var topmargin = ((winheight/2) - (clockheight/2));
+console.log('top margin is: ' + topmargin);
+$('#clock_container').css('margin-top', topmargin+"px");
 });
 
 function setClock(){
@@ -19,9 +22,9 @@ hours = (hours == 0) ? 12 : hours;
 var ampm = (now.getHours() >= 12) ? " PM" : " AM";
 var mins = (now.getMinutes() <10) ? "0" + now.getMinutes() : now.getMinutes();
 var secs = (now.getSeconds() <10) ? "0" + now.getSeconds() : now.getSeconds();
-$('#hours').html(hours+"");
-$('.dot').html(":");
-$('#minutes').html(mins+"");
-$('#seconds').html(secs+"");
-$('#ampm').html(ampm+"");
+$('#hours').text(hours+"");
+$('.dot').text(":");
+$('#minutes').text(mins+"");
+$('#seconds').text(secs+"");
+$('#ampm').text(ampm+"");
 }

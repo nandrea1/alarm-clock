@@ -1,8 +1,8 @@
 <html>
 <head>
 	
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/jquery-ui.min.js"></script>
 <script src="../js/bootstrap.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/globalize.js"></script>
@@ -20,7 +20,9 @@
 <script type="text/javascript">
 $('document').ready(function(){
 	var winheight = $(window).height();
-$('#clock_container').css('margin-top', ((winheight/2)-40)+"px");
+	var clockheight = $('#clock_container').height();
+	var topmargin = ((winheight/2) - (clockheight/2));
+$('#clock_container').css('margin-top', topmargin+"px");
 	setClock();
 setInterval("setClock()", 1000);
 
@@ -60,10 +62,15 @@ else{
 </script>
 </head>
 <body>
+
 <div id='clock_container' class='clock_div'>
+<div id='square'></div>
+<i class='icon-cog pull-left icon-white'></i>
 <span class='timedigit' id='hours'></span><span class='dot'></span><span class='timedigit' id='minutes'></span><span id='secondsdot' class='dot'></span>
 <span class='timedigit' id='seconds'></span><span id='ampm'></span>
+<br/>
+<p class='gray-text pull-left'>Log In</p>
 </div>
-<button onclick='toggleSeconds()'>Toggle Seconds</button>&nbsp;<button onclick='toggleTime()'>Toggle Time Type</button>
+<!--<button onclick='toggleSeconds()'>Toggle Seconds</button>&nbsp;<button onclick='toggleTime()'>Toggle Time Type</button>-->
 </body>
 </html>

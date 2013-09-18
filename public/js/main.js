@@ -14,7 +14,7 @@ socket.emit(eventname, data);
 }
 
 function silenceAlarm(alarm){
-$(alarm.music_area).attr("src", "");
+$(alarm.get("music_area").attr("src", "");
 }
 
 $(window).resize(function(){

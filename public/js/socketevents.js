@@ -13,8 +13,9 @@ sessionid = data.sessionid;
 });
 
 socket.on('silence-alarm', function(data){
-console.log('alarm silenced by ' + data.username  + ' on ' + data.silencedate);
-silenceAlarm(data);
+var alarm = new Alarm(data.alarm)
+console.log('alarm silenced by ' + alarm.get('username')  + ' on ' + data.silencedate);
+silenceAlarm(alarm);
 });
 
 socket.on('alarm-event', function(data){

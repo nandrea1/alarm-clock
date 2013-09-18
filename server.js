@@ -1,4 +1,5 @@
 var express =require('express');
+var mongoose = require('mongoose');
 var fs = require('fs');
 var MemoryStore = express.session.MemoryStore;
 var sessionStore = new MemoryStore();
@@ -15,6 +16,76 @@ app.use(express.cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.cookieSession({ store: sessionStore, secret: 'secretkeysareforalarms', key: 'sid' }));
 server.listen(8080);
+
+/////// DB Functions ////////
+mongoose.connect('mongodb://nandrea1:caca2tu5c@ds043378.mongolab.com:43378/alarm_db');
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function callback () {
+  console.log('DB Connection Successful');
+  
+});
+
+////// Schemas ///////
+
+var alarmSchema = mongoose.Schema({
+username: String,
+set: Boolean,
+time: String,
+date: String,
+datetime: String,
+pandora_station: String,
+grooveshark_link: String,
+grooveshark_song: String,
+radio_station: String,
+snooze_time: Number,
+complexity: String,
+email_notify: Boolean,
+notify_addresses: Array,
+snooze_limit: Number,
+gradual_volume: Boolean,
+alarm_type: String,
+music_area: String
+});
+
+var userSchema = mongoose.Schema({
+username: String,
+password: String,
+email: String,
+date_created: String,
+first_name: String,
+last_name: String,
+last_login: String,
+dob: String,
+facebook_login: Boolean,
+facebook_auth_token: String,
+facebook_auth_expiry: String,
+google_login: Boolean,
+google_auth_token: String,
+google_auth_expiry: String,
+active_sockets: Array,
+session_id: String
+
+});
+
+var clientSchema = mongoose.Schema({
+username: String,
+sessionid: String,
+Sockets: Array
+});
+
+var socketSchema = mongoose.Schema({
+socket: String,
+connected_on: String
+})
+
+///// Models /////
+
+var Socket = mongoose.model('Socket', socketSchema);
+var User = mongoose.model('User', userSchema);
+var Client = mongoose.model('Client', clientSchema);
+var Alarm = mongoose.model('Alarm', alarmSchema);
+/////// Routes //////
 
 
 app.get('/', function (req, res) {
@@ -110,7 +181,13 @@ io.set('log level', 2);
 io.sockets.on('connection', function (socket) {
 console.log('A socket with sessionID ' + socket.handshake.sessionID 
         + ' connected!');
-	
+	//var sockstring = JSON.stringify(socket);
+	console.log(socket);
+	var sock = new Socket({socket: socket.id, connected_on: new Date()});
+	sock.save(function (err) {
+	if (err) return handleError(err);
+		console.log('socket saved to db');
+		})
 	clients[socket.id] = socket;
 	if(socket.handshake.username == undefined || socket.handshake.username == ""){
 	var currentusername = socket.handshake.sessionID;
@@ -119,6 +196,8 @@ console.log('A socket with sessionID ' + socket.handshake.sessionID
 	var currentusername = socket.handshake.username;
 	}
 	var curruser = users[currentusername];
+	var curru = User.find({ username: currentusername});
+	console.log('current user is: ' + curru);
 	if(curruser =="" || curruser == undefined){
 	curruser = new Object();
 	curruser.username = currentusername;
@@ -145,6 +224,11 @@ console.log('A socket with sessionID ' + socket.handshake.sessionID
   socket.on('disconnect', function() {
 	var deletinguser = users[currentusername];
 	console.log('user ' + deletinguser.username + ' disconnected socket ' + socket.id);
+	Socket.remove({socket: socket.id}, function (err) {
+	if (err) return handleError(err);
+		console.log('socket '+socket.id+' removed from db');
+		});
+		
 	var socketindex = deletinguser.sockets.indexOf(socket);
 	if(socketindex > -1){
 	deletinguser.sockets.splice(socketindex, 1);
@@ -175,14 +259,15 @@ alarms.push(data);
 });
 
 socket.on('remove-alarm', function(data){
-console.log('removing alarm with date: ' + data.datetime);
-var alarmindex = alarms.indexOf(data);
-	if(alarmindex > -1){
-	alarms.splice(alarmindex, 1);
-	}
-	else{
-	console.log('Could not find Alarm.');
-	}
+var alarmdate = data.datetime;
+console.log('removing alarm with date: ' + alarmdate);
+for(var i=0; i<alarms.length; i++){
+var currtime = alarms[i].datetime;
+var curruser = alarms[i].username;
+if(data.datetime == currtime && data.username == curruser){
+alarms.splice(i, 1);
+}
+}
 });
 
 socket.on('silence-alarm', function(data){

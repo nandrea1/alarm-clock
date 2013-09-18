@@ -5,9 +5,12 @@ initialize: function(){
             this.on("change:set", function(model){
 				if(model.get("set")){
                 socket.emit('add-alarm', model);
+				
+				
 				}
 				else if(!model.get("set")){
 				socket.emit('remove-alarm', model);
+				
 				}
             });},
 defaults: {
@@ -63,7 +66,9 @@ console.log('Alarm Snoozed');
 var snoozetime = this.get("snooze_time");
 console.log("snooze time is: " + snoozetime);
 console.log('old time is: ' + this.get("datetime"));
-this.set("datetime", new Date(new Date().getTime()*1 + 1*this.get("snooze_time")));
+var  newdate = new Date(new Date().getTime()*1 + 1*this.get("snooze_time"));
+console.log('calc date is: ' + newdate);
+this.set("datetime", newdate);
 console.log('new time is: ' + this.datetime);
 socket.emit('add-alarm', this);
 }

@@ -2,6 +2,7 @@ var houroffset = 12;
 var socketid = "";
 var username = "";
 var sessionid = "";
+var activealarm = {};
   
 
 function getAudio(audiofile){
@@ -13,8 +14,64 @@ function customEvent(eventname, data){
 socket.emit(eventname, data);
 }
 
+function setAlarm(){
+var alarmaction = $('#alarm-button').text();
+var dt = new Date();
+var dtstring = getDateString(dt);
+var alarmtime = $('#timepicker').val();
+var alarmdatestring = dtstring + " " + alarmtime;
+console.log('alarm datetime: ' + alarmdatestring);
+var adate = new Date(alarmdatestring);
+var newday = dt.getDate();
+if(dt > adate){
+newday = dt.getDate()*1 + 1;
+}
+adate.setDate(newday);
+console.log('alarm date is: ' + adate);
+if(alarmaction == "Set Alarm"){
+var alarm = new Alarm
+if(username == "" || username == undefined){
+username = sessionid;
+}
+alarm.set('username', username);
+alarm.set('datetime', adate);
+alarm.set('alarm_type', 'basicAlarm');
+alarm.set('set', true);
+activealarm = alarm;
+$('#alarm-indicator').show();
+$('#alarm-button').text("Unset Alarm");
+}
+else{
+//actalarm = new Alarm(activealarm);
+activealarm.set("set", false);
+//activealarm = {};
+$('#alarm-indicator').hide();
+$('#alarm-button').text("Set Alarm");
+}
+//$('#alarm-button').attr('onclick', unsetAlarm);
+}
+
+function unsetAlarm(){
+
+//$('#alarm-button').attr('onclick', setAlarm);
+}
+
+function getDateString(dt){
+var dateday = dt.getDate();
+var datemonth = dt.getMonth()*1 + 1;
+var dateyear = dt.getFullYear();
+var dtstring = datemonth + "/" + dateday + "/" + dateyear;
+return dtstring; 
+}
+
 function silenceAlarm(alarm){
-$(alarm.get("music_area").attr("src", "");
+var musicareastring = alarm.get("music_area");
+$(musicareastring).attr("src", "");
+var newdateday = new Date(alarm.get("datetime")).getDate()*1 + 1;
+var newdate = new Date().setDate(newdateday);
+activealarm.set("datetime", newdate);
+activealarm.set("set", true);
+socket.emit('add-alarm', activealarm);
 }
 
 $(window).resize(function(){

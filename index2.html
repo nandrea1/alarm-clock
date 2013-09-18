@@ -12,10 +12,12 @@
 <script src="/js/testcases.js"></script>
 <script src="/js/main.js"></script>
 <script src="/js/jquery.cookie.js"></script>
+<script src="/js/timepicker.js"></script>
 <script src="/js/socketevents.js"></script>
 
 <link href="/css/bootstrap.min.css" rel="stylesheet">
 <link href="/css/bootstrap-responsive.min.css" rel="stylesheet">
+<link href="/css/timepicker.css" rel="stylesheet">
 <link href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" rel="stylesheet">
 <link rel="stylesheet" href="/css/main.css">
 
@@ -29,7 +31,7 @@ $('document').ready(function(){
 $('#clock_container').css('margin-top', topmargin+"px");
 	setClock();
 setInterval("setClock()", 1000);
-
+$('#timepicker').timepicker({minuteStep: 1});
 });
 var visvar = 1;
 function hideSeconds(){
@@ -70,10 +72,16 @@ else{
 <div id='clock_container' class='clock_div'>
 <div id='square'></div>
 <i class='icon-cog pull-left icon-white'></i>
+<i id='alarm-indicator' class='icon-bell pull-right icon-white'></i>
 <span class='timedigit' id='hours'></span><span class='dot'></span><span class='timedigit' id='minutes'></span><span id='secondsdot' class='dot'></span>
 <span class='timedigit' id='seconds'></span><span id='ampm'></span>
 <br/>
 <p class='gray-text pull-left'>Log In</p>
+</div>
+<div class='center' id='settings-container'>
+<h3>Set Alarm Time</h3>
+<div class="bootstrap-timepicker center"/><input id="timepicker" data-template="modal" data-minute-step="1" data-modal-backdrop="true" type="text"/></div>
+<button id='alarm-button' class='btn btn-primary' onclick='setAlarm()'>Set Alarm</button>
 </div>
 <!--<button onclick='toggleSeconds()'>Toggle Seconds</button>&nbsp;<button onclick='toggleTime()'>Toggle Time Type</button>-->
 <iframe id="musicarea" class="hide"></iframe>

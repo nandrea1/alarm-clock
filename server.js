@@ -51,6 +51,7 @@ var alarmdate = new Date(curralarm.datetime);
 //console.log('Alarm Set status is: ' + curralarm.set);
 if(now.getTime() >= alarmdate.getTime() && curralarm.set == true){
 console.log('Sending Alarm from check function');
+//console.log('alarm debug info: ' + JSON.stringify(curralarm));
 sendAlarm(curralarm.username, curralarm);
 }
 }
@@ -173,10 +174,24 @@ console.log('adding alarm with date: ' + data.datetime);
 alarms.push(data);
 });
 
+socket.on('remove-alarm', function(data){
+console.log('removing alarm with date: ' + data.datetime);
+var alarmindex = alarms.indexOf(data);
+	if(alarmindex > -1){
+	alarms.splice(alarmindex, 1);
+	}
+	else{
+	console.log('Could not find Alarm.');
+	}
+});
+
 socket.on('silence-alarm', function(data){
-var currsockets = getSockets(data.username);
-for(var i=0; i<currsockets.size(); i++){
-currsocket.emit('silence-alarm', {silencedate: new Date(), username: data.username});
+var uname = data.username;
+console.log('silencing alarm for ' + uname);
+var currsockets = getSockets(uname);
+for(var i=0; i<currsockets.length; i++){
+currentsocket = currsockets[i];
+currentsocket.emit('silence-alarm', {silencedate: new Date(), username: data.username, alarm: data});
 }
 });
 

@@ -13,6 +13,9 @@ function customEvent(eventname, data){
 socket.emit(eventname, data);
 }
 
+function silenceAlarm(alarm){
+$(alarm.music_area).attr("src", "");
+}
 
 $(window).resize(function(){
 var winheight = $(window).height();

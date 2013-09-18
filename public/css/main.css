@@ -17,6 +17,10 @@
 
 }
 
+.hide {
+display: none;
+}
+
 .icon-cog {
 position: relative;
 margin-left: 10px;

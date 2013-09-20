@@ -85,5 +85,21 @@ else{
 </div>
 <!--<button onclick='toggleSeconds()'>Toggle Seconds</button>&nbsp;<button onclick='toggleTime()'>Toggle Time Type</button>-->
 <iframe id="musicarea" class="hide"></iframe>
+
+<!-- Modal Area -->
+
+<div id="alarmmodal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Alarm Activated!</h3>
+  </div>
+  <div class="modal-body">
+  </div>
+  <div class="modal-footer">
+    <button onclick='emitSilenceEvent(activealarm)' class="btn" data-dismiss="modal" aria-hidden="true">Silence Alarm</button>
+	<button onclick='snoozeAlarm(activealarm)' data-dismiss="modal" class="btn btn-primary">Snooze</button>
+  </div>
+</div>
+
 </body>
 </html>

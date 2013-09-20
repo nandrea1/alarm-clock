@@ -55,6 +55,10 @@ console.log("error");
 },
 
 basicAlarm: function() {
+
+$('#alarmmodal').modal({remote: '/files/alarmwindowbody.html', keyboard:false});
+
+/*
 var alarmoff = confirm('Alarm Activated! Click Ok to silence, Cancel to Snooze');
 if(alarmoff){
 socket.emit('silence-alarm', this);
@@ -71,7 +75,7 @@ console.log('calc date is: ' + newdate);
 this.set("datetime", newdate);
 console.log('new time is: ' + this.datetime);
 socket.emit('add-alarm', this);
-}
+}*/
 },
 
 setAlarm: function(){

@@ -151,6 +151,15 @@ var user = users[username];
 return user.sockets;
 }
 
+function getAlarms(username){
+alarmlist = new Array();
+for(var i=0; i<alarms.length; i++){
+var alarmuser = alarms[i].username;
+if(alarmuser == username){alarmlist.push(alarms[i]);}
+}
+return alarmlist;
+}
+
 /////Socket IO Functions and Events/////
 
 
@@ -182,7 +191,7 @@ io.sockets.on('connection', function (socket) {
 console.log('A socket with sessionID ' + socket.handshake.sessionID 
         + ' connected!');
 	//var sockstring = JSON.stringify(socket);
-	console.log(socket);
+	//console.log(socket);
 	var sock = new Socket({socket: socket.id, connected_on: new Date()});
 	sock.save(function (err) {
 	if (err) return handleError(err);
@@ -210,16 +219,13 @@ console.log('A socket with sessionID ' + socket.handshake.sessionID
 	curruser.sockets.push(socket);
 	users[currentusername] = curruser;
 	}
+	var alarmlist = getAlarms(currentusername);
 	socket.emit('socket-id', {socketid: socket.id});
 	socket.emit('session-id', {sessionid: socket.handshake.sessionID});
+	socket.emit('send-alarms', {alarms: alarmlist});
 	
-  socket.on('my other event', function (data) {
-    console.log(data);
-  });
   
-  socket.on('message', function(data){console.log("Message Sent Was: " + data);
-  socket.emit('msgconfirm', 'Message successfully sent');
-  });
+
   
   socket.on('disconnect', function() {
 	var deletinguser = users[currentusername];

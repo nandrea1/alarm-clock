@@ -3,6 +3,7 @@ var socketid = "";
 var username = "";
 var sessionid = "";
 var activealarm = {};
+var alarmcount = 0;
   
 
 function getAudio(audiofile){
@@ -12,6 +13,42 @@ $('#audiospace').html(htmlstring);
 
 function customEvent(eventname, data){
 socket.emit(eventname, data);
+}
+
+function formatTime(date){
+var hours = (date.getHours() > 12) ? date.getHours()-12 : date.getHours();
+var mins = date.getMinutes <10 ? "0" + date.getMinutes() : date.getMinutes();
+var ampm = date.getHours() >= 12 ? "PM" : "AM";
+
+var timestring = hours + ":" + mins +" " + ampm;
+
+return timestring;
+
+}
+
+function initializeAlarms(alarms){
+$('document').ready(function(){
+$('#alarm-indicator').show();
+activealarm = new Alarm(alarms[0]);
+$('#alarm-button').text("Unset Alarm");
+var alarmdate = new Date(activealarm.get('datetime'));
+var timestring = formatTime(alarmdate);
+$('#alarm-indicator').tooltip({title: timestring});
+});
+}
+
+
+function snoozeAlarm(){
+socket.emit('remove-alarm', activealarm);
+console.log('Alarm Snoozed');
+var snoozetime = activealarm.get("snooze_time");
+console.log("snooze time is: " + snoozetime);
+console.log('old time is: ' + activealarm.get("datetime"));
+var  newdate = new Date(activealarm.get("datetime").getTime() + 1*activealarm.get("snooze_time"));
+console.log('calc date is: ' + newdate);
+activealarm.set("datetime", newdate);
+console.log('new time is: ' + activealarm.get('datetime'));
+socket.emit('add-alarm', activealarm);
 }
 
 function setAlarm(){
@@ -40,11 +77,15 @@ alarm.set('set', true);
 activealarm = alarm;
 $('#alarm-indicator').show();
 $('#alarm-button').text("Unset Alarm");
+var alarmdate = new Date(activealarm.get('datetime'));
+var timestring = formatTime(alarmdate);
+$('#alarm-indicator').tooltip({title: timestring});
 }
 else{
 //actalarm = new Alarm(activealarm);
 activealarm.set("set", false);
 //activealarm = {};
+$('#alarm-indicator').tooltip('destroy');
 $('#alarm-indicator').hide();
 $('#alarm-button').text("Set Alarm");
 }
@@ -64,11 +105,19 @@ var dtstring = datemonth + "/" + dateday + "/" + dateyear;
 return dtstring; 
 }
 
+function emitSilenceEvent(){
+socket.emit('silence-alarm', activealarm);
+}
+
 function silenceAlarm(alarm){
+alarm = new Alarm(alarm);
 var musicareastring = alarm.get("music_area");
 $(musicareastring).attr("src", "");
-var newdateday = new Date(alarm.get("datetime")).getDate()*1 + 1;
+//var newdateday = new Date(alarm.get("datetime")).getDate()*1 + 1;
+var newdateday = new Date().getDate()+1;
+console.log('new date day: ' + newdateday);
 var newdate = new Date().setDate(newdateday);
+console.log('new date is: ' + newdate);
 activealarm.set("datetime", newdate);
 activealarm.set("set", true);
 socket.emit('add-alarm', activealarm);

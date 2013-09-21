@@ -4,6 +4,8 @@ var username = "";
 var sessionid = "";
 var activealarm = {};
 var alarmcount = 0;
+var groovesharkkey = 'b25a7402df222ad00acd2030db1065ad';
+var groovesharkroot = 'http://tinysong.com/b/';
   
 
 function getAudio(audiofile){
@@ -13,6 +15,27 @@ $('#audiospace').html(htmlstring);
 
 function customEvent(eventname, data){
 socket.emit(eventname, data);
+}
+
+function getSong(){
+var searchstring = $('#groovesharksearch').val();
+var searchurl = groovesharkroot + searchstring + '?format=json&key=' + groovesharkkey+'&callback=?';
+console.log('grooveshark key: ' + searchurl);
+$.getJSON(searchurl, function(data){console.log(data);});
+/*
+$.ajax({
+    url : searchurl,
+    type : 'get',
+    dataType : 'jsonp',
+    success : function(response){
+        console.log(response);
+        
+    },
+    error: function(error){
+        console.warn('ERROR');
+        console.warn(error);
+    }
+});*/
 }
 
 function formatTime(date){
@@ -60,6 +83,7 @@ var alarmdatestring = dtstring + " " + alarmtime;
 console.log('alarm datetime: ' + alarmdatestring);
 var adate = new Date(alarmdatestring);
 var newday = dt.getDate();
+var alarmtype = $('#alarmtype').val();
 if(dt > adate){
 newday = dt.getDate()*1 + 1;
 }
@@ -72,7 +96,7 @@ username = sessionid;
 }
 alarm.set('username', username);
 alarm.set('datetime', adate);
-alarm.set('alarm_type', 'basicAlarm');
+alarm.set('alarm_type', alarmtype);
 alarm.set('set', true);
 activealarm = alarm;
 $('#alarm-indicator').show();

@@ -17,6 +17,11 @@
 
 }
 
+.alert-text{
+font-size: 20px;
+
+}
+
 .hide {
 display: none;
 }
@@ -25,6 +30,7 @@ display: none;
 position: relative;
 margin-left: 10px;
 margin-top: 10px;
+cursor: pointer;
 }
 
 .icon-bell {
@@ -32,6 +38,7 @@ position: relative;
 margin-right: 10px;
 margin-top: 10px;
 display: none;
+cursor: pointer;
 }
 
 .gray-text:hover{
@@ -81,12 +88,29 @@ position: relative;
 margin-left: auto;
 margin-right: auto;
 text-align: center;
+max-width: 1000px;
+}
+
+#groovesharksearch{
+height: 30px;
+}
+
+#timepicker{
+height: 30px;
+}
+
+#groovesharkrow{
+display:none;
 }
 
 body {
 	
 	background-color: #111111;
-	color: #F5FFFA;
+	
+}
+
+.clock_div{
+color: #F5FFFA;
 	font-size: 9em;
 	/*line-height: 1.5em;*/
 	font-weight: bold;

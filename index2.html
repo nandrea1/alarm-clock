@@ -26,6 +26,7 @@
 <script type="text/javascript">
 $('document').ready(function(){
 	var winheight = $(window).height();
+	$('#settings-container').hide();
 	var clockheight = $('#clock_container').height();
 	var topmargin = ((winheight/2) - (clockheight/2));
 $('#clock_container').css('margin-top', topmargin+"px");
@@ -43,6 +44,20 @@ visvar = 0;
 function showSeconds(){
 $('#secondsdot').show();
 $('#seconds').show();
+}
+
+function toggleSettings(){
+$('#settings-container').slideToggle();
+}
+
+function showAlarmSettings(){
+var selectedalarm = $('#alarmtype').val();
+if(selectedalarm == "groovesharkAlarm"){
+$('#groovesharkrow').show();
+}
+else{
+$('#groovesharkrow').hide();
+}
 }
 
 function toggleSeconds(){
@@ -70,8 +85,7 @@ else{
 <body>
 
 <div id='clock_container' class='clock_div'>
-<div id='square'></div>
-<i class='icon-cog pull-left icon-white'></i>
+<i onclick='toggleSettings()' class='icon-cog pull-left icon-white'></i>
 <i id='alarm-indicator' class='icon-bell pull-right icon-white'></i>
 <span class='timedigit' id='hours'></span><span class='dot'></span><span class='timedigit' id='minutes'></span><span id='secondsdot' class='dot'></span>
 <span class='timedigit' id='seconds'></span><span id='ampm'></span>
@@ -79,9 +93,30 @@ else{
 <p class='gray-text pull-left'>Log In</p>
 </div>
 <div class='center' id='settings-container'>
+<div class="row">
+<div class='span3'>
 <h3>Set Alarm Time</h3>
-<div class="bootstrap-timepicker center"/><input id="timepicker" data-template="modal" data-minute-step="1" data-modal-backdrop="true" type="text"/></div>
+<div class="bootstrap-timepicker center">
+<input id="timepicker" data-template="modal" data-minute-step="1" data-modal-backdrop="true" type="text"/>
+</div>
+</div>
+<div class="span3">
+<h3>Select Alarm Type</h3>
+<select id='alarmtype' onchange='showAlarmSettings()'>
+<option value="basicAlarm">Basic Alarm</option>
+<option value="groovesharkAlarm">Grooveshark Alarm</option>
+<option value="pandoraAlarm">Pandora Alarm</option>
+</select>
+</div>
+<h3>a</h3>
 <button id='alarm-button' class='btn btn-primary' onclick='setAlarm()'>Set Alarm</button>
+</div>
+<div id='groovesharkrow' class='row'>
+<div class='span9'>
+<h3>Search Grooveshark for Song</h3>
+<input type='text' class='text-input' id='groovesharksearch' />&nbsp;&nbsp;<button class='btn btn-primary btn-small' onclick='getSong()'>Search</button>
+</div>
+</div>
 </div>
 <!--<button onclick='toggleSeconds()'>Toggle Seconds</button>&nbsp;<button onclick='toggleTime()'>Toggle Time Type</button>-->
 <iframe id="musicarea" class="hide"></iframe>

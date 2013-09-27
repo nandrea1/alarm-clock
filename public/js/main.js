@@ -17,6 +17,16 @@ function customEvent(eventname, data){
 socket.emit(eventname, data);
 }
 
+function setFontSize(){
+    var perc = $(window).width()/1280; 
+    var fontsize = perc*9; 
+    var graysize = perc*15; 
+    console.log('font size is: ' + fontsize); 
+    $('.gray-text').css('font-size', graysize); 
+    $('.clock_div').css('font-size', fontsize + "em");
+
+}
+
 function getSong(){
 var searchstring = $('#groovesharksearch').val();
 var searchurl = groovesharkroot + searchstring + '?format=json&key=' + groovesharkkey+'&callback=?';
@@ -36,6 +46,25 @@ $.ajax({
         console.warn(error);
     }
 });*/
+
+
+function getSongAjax(){
+var searchstring = $('#groovesharksearch').val();
+var searchurl = groovesharkroot + searchstring + '?format=json&key=' + groovesharkkey;
+console.log('grooveshark key: ' + searchurl);
+$.ajax({
+    url : searchurl,
+    type : 'get',
+    //dataType : 'jsonp',
+    success : function(response){
+        console.log(response);
+        
+    },
+    error: function(error){
+        console.warn('ERROR');
+        console.warn(error);
+    }
+
 }
 
 function formatTime(date){

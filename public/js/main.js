@@ -65,6 +65,8 @@ $.ajax({
         console.warn(error);
     }
 
+});
+
 }
 
 function formatTime(date){

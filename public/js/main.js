@@ -46,7 +46,7 @@ $.ajax({
         console.warn(error);
     }
 });*/
-
+}
 
 function getSongAjax(){
 var searchstring = $('#groovesharksearch').val();
@@ -184,6 +184,7 @@ var clockheight = $('#clock_container').height();
 var topmargin = ((winheight/2) - (clockheight/2));
 console.log('top margin is: ' + topmargin);
 $('#clock_container').css('margin-top', topmargin+"px");
+setFontSize();
 });
 
 function setClock(){

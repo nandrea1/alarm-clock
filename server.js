@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
 var fs = require('fs');
 var MemoryStore = express.session.MemoryStore;
 var sessionStore = new MemoryStore();
+var port = process.env.PORT || 8080
 //var mongoose = require('mongoose');
 var filehome = "C:/nodeapps/alarm-clock/public/files/";
 var clients = {};
@@ -15,7 +16,7 @@ var path = require('path');
 app.use(express.cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.cookieSession({ store: sessionStore, secret: 'secretkeysareforalarms', key: 'sid' }));
-server.listen(8080);
+server.listen(port);
 
 /////// DB Functions ////////
 mongoose.connect('mongodb://nandrea1:caca2tu5c@ds043378.mongolab.com:43378/alarm_db');

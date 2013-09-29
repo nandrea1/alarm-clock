@@ -2,6 +2,7 @@ var houroffset = 12;
 var socketid = "";
 var username = "";
 var sessionid = "";
+var host = "http://" + top.location.hostname;
 var activealarm = {};
 var alarmcount = 0;
 var groovesharkkey = 'b25a7402df222ad00acd2030db1065ad';

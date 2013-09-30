@@ -83,6 +83,12 @@ margin-top: -1.5em;
 margin-left: 1em;
 }
 
+.info-text{
+font-weight: bold;
+font-size: 1.5em;
+
+}
+
 .center {
 position: relative;
 margin-left: auto;
@@ -93,10 +99,16 @@ max-width: 1000px;
 
 #groovesharksearch{
 height: 30px;
+width: 170px;
 }
 
 #timepicker{
 height: 30px;
+width: 80px;
+}
+
+#alarmtype{
+width: 170px;
 }
 
 #groovesharkrow{
@@ -107,6 +119,11 @@ body {
 	
 	background-color: #111111;
 	
+}
+
+#settings-container{
+
+
 }
 
 .clock_div{

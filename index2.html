@@ -92,29 +92,35 @@ else{
 <br/>
 <p class='gray-text pull-left'>Log In</p>
 </div>
+<br/>
 <div class='center' id='settings-container'>
 <div class="row">
-<div class='span3'>
-<h3>Set Alarm Time</h3>
+<div class='span4'>
+
 <div class="bootstrap-timepicker center">
+<label for='timepicker' class='info-text pull-left'>Alarm Time:
 <input id="timepicker" data-template="modal" data-minute-step="1" data-modal-backdrop="true" type="text"/>
+</label>
 </div>
 </div>
-<div class="span3">
-<h3>Select Alarm Type</h3>
+<div class="span4">
+<div id='alarm-select-div'>
+<label for='alarmtype' class='info-text'>Alarm Type:
 <select id='alarmtype' onchange='showAlarmSettings()'>
 <option value="basicAlarm">Basic Alarm</option>
 <option value="groovesharkAlarm">Grooveshark Alarm</option>
 <option value="pandoraAlarm">Pandora Alarm</option>
 </select>
+</label>
 </div>
-<h3>a</h3>
+</div>
 <button id='alarm-button' class='btn btn-primary' onclick='setAlarm()'>Set Alarm</button>
 </div>
 <div id='groovesharkrow' class='row'>
-<div class='span9'>
-<h3>Search Grooveshark for Song</h3>
-<input type='text' class='text-input' id='groovesharksearch' />&nbsp;&nbsp;<button class='btn btn-primary btn-small' onclick='getSongAjax()'>Search</button>
+<div class='span6'>
+<label class='info-text pull-left'>Search Grooveshark for Song
+<input type='text' class='text-input' id='groovesharksearch' /></label>&nbsp;&nbsp;</div>
+<div class='span1'><button class='center btn btn-primary btn-small' onclick='getSongAjax()'>Search</button>
 </div>
 </div>
 </div>

@@ -21,10 +21,13 @@ socket.emit(eventname, data);
 function setFontSize(){
     var perc = $(window).width()/1280; 
     var fontsize = perc*9; 
-    var graysize = perc*15; 
+    var graysize = perc*15;
+	var textsize = perc*1.5;
+	textsize = (textsize >=1) ? textsize : 1;
     console.log('font size is: ' + fontsize); 
     $('.gray-text').css('font-size', graysize); 
     $('.clock_div').css('font-size', fontsize + "em");
+	$('.info-text').css('font-size', textsize + "em");
 
 }
 

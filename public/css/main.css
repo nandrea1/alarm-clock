@@ -17,9 +17,17 @@
 
 }
 
+.row-fluid{
+max-width: 1000px;
+}
+
 .alert-text{
 font-size: 20px;
 
+}
+
+#alarmdropdown{
+margin-top: -4px;
 }
 
 .hide {
@@ -44,6 +52,10 @@ cursor: pointer;
 .gray-text:hover{
 color: white;
 cursor: pointer;
+}
+
+#alarm-select-div{
+float: none;
 }
 
 #square {
@@ -87,6 +99,7 @@ margin-left: 1em;
 font-weight: bold;
 font-size: 1.5em;
 
+
 }
 
 .center {
@@ -121,8 +134,19 @@ body {
 	
 }
 
-#settings-container{
+label{
+vertical-align: top;
+}
 
+#settings-container{
+position: relative;
+	margin-left: auto;
+	margin-right: auto;
+	max-width: 1000px;
+	line-height: 1em;
+	/*margin-top: -100px;*/
+	/*text-align: center;*/
+	/*height: 200px;*/
 
 }
 

@@ -83,7 +83,8 @@ else{
 </script>
 </head>
 <body>
-
+<div id='row1' class='row-fluid center'>
+<div class='span12'>
 <div id='clock_container' class='clock_div'>
 <i onclick='toggleSettings()' class='icon-cog pull-left icon-white'></i>
 <i id='alarm-indicator' class='icon-bell pull-right icon-white'></i>
@@ -92,35 +93,49 @@ else{
 <br/>
 <p class='gray-text pull-left'>Log In</p>
 </div>
+</div>
+</div>
 <br/>
-<div class='center' id='settings-container'>
-<div class="row">
+<div class='row-fluid center'>
+<div class='span12' id='settings-container'>
+<div class="row-fluid">
 <div class='span4'>
-
-<div class="bootstrap-timepicker center">
-<label for='timepicker' class='info-text pull-left'>Alarm Time:
+<span class="bootstrap-timepicker">
+<label for='timepicker' class='info-text'>Alarm Time:
 <input id="timepicker" data-template="modal" data-minute-step="1" data-modal-backdrop="true" type="text"/>
 </label>
-</div>
+</span>
 </div>
 <div class="span4">
-<div id='alarm-select-div'>
-<label for='alarmtype' class='info-text'>Alarm Type:
-<select id='alarmtype' onchange='showAlarmSettings()'>
+<span id='alarm-select-div' class=''>
+<ul class="nav nav-pills">
+			<li class='info-text'>Alarm Type:</li>
+              <li class="dropdown info-text">
+                <a class="dropdown-toggle" id="alarmdropdown" role="button" data-toggle="dropdown" href="#">Basic Alarm <b class="caret"></b></a>
+                <ul id="alarmmenu" class="dropdown-menu" role="menu" aria-labelledby="alarmdropdown">
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Grooveshark Alarm</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Pandora Alarm</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Radio Alarm</a></li>
+                </ul>
+              </li>
+            </ul>
+<!--<select id='alarmtype' onchange='showAlarmSettings()'>
 <option value="basicAlarm">Basic Alarm</option>
 <option value="groovesharkAlarm">Grooveshark Alarm</option>
 <option value="pandoraAlarm">Pandora Alarm</option>
-</select>
-</label>
+</select>-->
+</span>
 </div>
-</div>
+<div class="span4">
 <button id='alarm-button' class='btn btn-primary' onclick='setAlarm()'>Set Alarm</button>
+</div>
 </div>
 <div id='groovesharkrow' class='row'>
 <div class='span6'>
 <label class='info-text pull-left'>Search Grooveshark for Song
 <input type='text' class='text-input' id='groovesharksearch' /></label>&nbsp;&nbsp;</div>
 <div class='span1'><button class='center btn btn-primary btn-small' onclick='getSongAjax()'>Search</button>
+</div>
 </div>
 </div>
 </div>

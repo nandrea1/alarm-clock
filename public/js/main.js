@@ -3,20 +3,44 @@ var socketid = "";
 var username = "";
 var sessionid = "";
 var host = "http://" + top.location.hostname;
-var activealarm = {};
+var activealarm;
+var pendingalarm;
 var alarmcount = 0;
 var groovesharkkey = 'b25a7402df222ad00acd2030db1065ad';
 var groovesharkroot = 'http://tinysong.com/b/';
-  
 
-function getAudio(audiofile){
-	var htmlstring = '<audio autoplay><source type="audio/mpeg" src="' + audiofile + '" ></audio>';
-$('#audiospace').html(htmlstring);
+/***** Initialization Functions *****/
+
+function setClock(){
+
+var now = new Date();
+
+var hours = (now.getHours() > 12) ? now.getHours() - houroffset*1 : now.getHours();
+hours = (hours == 0) ? 12 : hours;
+var ampm = (now.getHours() >= 12) ? " PM" : " AM";
+var mins = (now.getMinutes() <10) ? "0" + now.getMinutes() : now.getMinutes();
+var secs = (now.getSeconds() <10) ? "0" + now.getSeconds() : now.getSeconds();
+$('#hours').text(hours+"");
+$('.dot').text(":");
+$('#minutes').text(mins+"");
+$('#seconds').text(secs+"");
+$('#ampm').text(ampm+"");
 }
 
-function customEvent(eventname, data){
-socket.emit(eventname, data);
+function initializeAlarms(alarms){
+$('document').ready(function(){
+$('#alarm-indicator').show();
+activealarm = new Alarm(alarms[0]);
+$('#alarm-button').text("Unset Alarm");
+var alarmdate = new Date(activealarm.get('datetime'));
+var timestring = formatTime(alarmdate);
+$('#alarm-indicator').tooltip({title: timestring});
+});
 }
+
+/***** ------------------ *****/
+
+/**** Responsive Functions *****/
 
 function setFontSize(){
     var perc = $(window).width()/1280; 
@@ -31,25 +55,257 @@ function setFontSize(){
 
 }
 
+$(window).resize(function(){
+var winheight = $(window).height();
+var clockheight = $('#clock_container').height();
+var topmargin = ((winheight/2) - (clockheight/2));
+console.log('top margin is: ' + topmargin);
+$('#clock_container').css('margin-top', topmargin+"px");
+setFontSize();
+});
+
+/****** ------------ ******/
+
+/***** Screen Modification Functions ******/
+
+
+function populateDropdownText(item){
+var newtext = $(item).text();
+var newval = $(item).attr('value');
+console.log(newtext);
+var currenttext = $('#alarmdropdown').text();
+var currval = $('#alarmdropdown').attr('value');
+console.log(currenttext);
+$(item).html(currenttext);
+$(item).attr('value', currval);
+$('#alarmdropdown').html(newtext+'<b class="caret"></b>');
+$('#alarmdropdown').attr('value', newval);
+showAlarmSettings();
+saveAlarmType();
+}
+
+
+function hideSeconds(){
+$('#secondsdot').hide();
+$('#seconds').hide();
+visvar = 0;
+}
+
+function showSeconds(){
+$('#secondsdot').show();
+$('#seconds').show();
+}
+
+function toggleSettings(){
+$('#settings-container').slideToggle({complete: function(){
+var disp = $('#settings-container').css('display');
+if(disp == "block" && (pendingalarm == {} || pendingalarm == undefined)){
+console.log('Creating new Alarm');
+pendingalarm = new Alarm;
+}
+initializePendingAlarm();
+}
+});
+
+}
+
+function showAlarmSettings(){
+var selectedalarm = $('#alarmdropdown').text();
+if(selectedalarm == "Grooveshark Alarm"){
+$('#groovesharkrow').show();
+}
+else{
+$('#groovesharkrow').hide();
+}
+}
+
+function toggleSeconds(){
+	if (visvar == 1) {
+		hideSeconds();
+	}
+	else{
+		showSeconds();
+	}
+}
+
+function toggleTime(){
+if(houroffset == 12){
+	houroffset = 0;
+	$('#ampm').hide();
+}
+else{
+	houroffset = 12;
+	$('#ampm').show();
+}
+}
+
+function updateScreenAlarm(command){
+if(command == "Set"){
+$('#alarm-indicator').show();
+$('#alarm-button').text("Unset Alarm");
+var alarmdate = new Date(activealarm.get('datetime'));
+var timestring = formatTime(alarmdate);
+$('#alarm-indicator').tooltip({title: timestring});
+}
+if(command == "Unset"){
+$('#alarm-indicator').tooltip('destroy');
+$('#alarm-indicator').hide();
+$('#alarm-button').text("Set Alarm");
+}
+}
+
+/***** ---------- *****/
+
+/***** Miscellaneous Functions *****/
+
+function formatTime(date){
+var hours = (date.getHours() > 12) ? date.getHours()-12 : date.getHours();
+var mins = date.getMinutes <10 ? "0" + date.getMinutes() : date.getMinutes();
+var ampm = date.getHours() >= 12 ? "PM" : "AM";
+
+var timestring = hours + ":" + mins +" " + ampm;
+
+return timestring;
+
+}
+
+function getDateString(dt){
+var dateday = dt.getDate();
+var datemonth = dt.getMonth()*1 + 1;
+var dateyear = dt.getFullYear();
+var dtstring = datemonth + "/" + dateday + "/" + dateyear;
+return dtstring; 
+}
+
+function getAlarmDate(){
+var dt = new Date();
+var dtstring = getDateString(dt);
+var alarmtime = $('#timepicker').val();
+var alarmdatestring = dtstring + " " + alarmtime;
+console.log('alarm datetime: ' + alarmdatestring);
+var adate = new Date(alarmdatestring);
+var newday = dt.getDate();
+if(dt > adate){
+newday = dt.getDate()*1 + 1;
+}
+adate.setDate(newday);
+console.log('alarm date is: ' + adate);
+return adate;
+}
+
+function getUsername(){
+if(username == "" || username == undefined){
+username = sessionid;
+}
+return username;
+}
+
+function initializePendingAlarm(){
+var adt = getAlarmDate();
+var usr = getUsername();
+pendingalarm.set('username', usr);
+pendingalarm.set('datetime', adt);
+var atype = $('#alarmdropdown').attr('value');
+pendingalarm.set('alarm_type', atype);
+}
+/***** ------------------ *****/
+
+/***** Interaction Driven Functions *****/
+
+function setButtonClick(){
+$('#alarm-button').click(function(){
+console.log('clicked alarm button');
+var alarmaction = $('#alarm-button').text();
+if (alarmaction == "Set Alarm"){
+setPendingAlarm();
+updateScreenAlarm("Set");
+}
+else{
+unsetPendingAlarm();
+updateScreenAlarm("Unset");
+}
+
+
+
+});
+}
+
+//Driven by clicking on dropdown//
+
+function saveAlarmType(){
+var atype = $('#alarmdropdown').attr('value');
+pendingalarm.set('alarm_type', atype);
+}
+
+// Driven by clicking silence in modal window //
+
+
+function emitSilenceEvent(){
+socket.emit('silence-alarm', activealarm);
+}
+
+/***** ------------------------- *****/
+
+/***** Alarm Functions *****/
+
+function setPendingAlarm(){
+var adt = getAlarmDate();
+pendingalarm.set('datetime', adt);
+activealarm = undefined;
+activealarm = pendingalarm.clone();
+activealarm.set('set', true);
+//pendingalarm = undefined;
+}
+
+function unsetPendingAlarm(){
+activealarm.set("set", false);
+activealarm = undefined;
+}
+
+function snoozeAlarm(){
+socket.emit('remove-alarm', activealarm);
+console.log('Alarm Snoozed');
+var snoozetime = activealarm.get("snooze_time");
+console.log("snooze time is: " + snoozetime);
+console.log('old time is: ' + activealarm.get("datetime"));
+var  newdate = new Date(activealarm.get("datetime").getTime() + 1*activealarm.get("snooze_time"));
+console.log('calc date is: ' + newdate);
+activealarm.set("datetime", newdate);
+console.log('new time is: ' + activealarm.get('datetime'));
+socket.emit('add-alarm', activealarm);
+}
+
+function silenceAlarm(alarm){
+alarm = new Alarm(alarm);
+var musicareastring = alarm.get("music_area");
+$(musicareastring).attr("src", "");
+var newdateday = new Date().getDate()+1;
+console.log('new date day: ' + newdateday);
+var newdate = new Date().setDate(newdateday);
+console.log('new date is: ' + newdate);
+activealarm.set("datetime", newdate);
+activealarm.set("set", true);
+socket.emit('add-alarm', activealarm);
+}
+
+/***** --------- *****/
+
+
+function getAudio(audiofile){
+	var htmlstring = '<audio autoplay><source type="audio/mpeg" src="' + audiofile + '" ></audio>';
+$('#audiospace').html(htmlstring);
+}
+
+function customEvent(eventname, data){
+socket.emit(eventname, data);
+}
+
+
 function getSong(){
 var searchstring = $('#groovesharksearch').val();
 var searchurl = groovesharkroot + searchstring + '?format=json&key=' + groovesharkkey+'&callback=?';
 console.log('grooveshark key: ' + searchurl);
 $.getJSON(searchurl, function(data){console.log(data);});
-/*
-$.ajax({
-    url : searchurl,
-    type : 'get',
-    dataType : 'jsonp',
-    success : function(response){
-        console.log(response);
-        
-    },
-    error: function(error){
-        console.warn('ERROR');
-        console.warn(error);
-    }
-});*/
 }
 
 function getSongAjax(){
@@ -73,136 +329,14 @@ $.ajax({
 
 }
 
-function formatTime(date){
-var hours = (date.getHours() > 12) ? date.getHours()-12 : date.getHours();
-var mins = date.getMinutes <10 ? "0" + date.getMinutes() : date.getMinutes();
-var ampm = date.getHours() >= 12 ? "PM" : "AM";
-
-var timestring = hours + ":" + mins +" " + ampm;
-
-return timestring;
-
-}
-
-function initializeAlarms(alarms){
-$('document').ready(function(){
-$('#alarm-indicator').show();
-activealarm = new Alarm(alarms[0]);
-$('#alarm-button').text("Unset Alarm");
-var alarmdate = new Date(activealarm.get('datetime'));
-var timestring = formatTime(alarmdate);
-$('#alarm-indicator').tooltip({title: timestring});
-});
-}
 
 
-function snoozeAlarm(){
-socket.emit('remove-alarm', activealarm);
-console.log('Alarm Snoozed');
-var snoozetime = activealarm.get("snooze_time");
-console.log("snooze time is: " + snoozetime);
-console.log('old time is: ' + activealarm.get("datetime"));
-var  newdate = new Date(activealarm.get("datetime").getTime() + 1*activealarm.get("snooze_time"));
-console.log('calc date is: ' + newdate);
-activealarm.set("datetime", newdate);
-console.log('new time is: ' + activealarm.get('datetime'));
-socket.emit('add-alarm', activealarm);
-}
 
-function setAlarm(){
-var alarmaction = $('#alarm-button').text();
-var dt = new Date();
-var dtstring = getDateString(dt);
-var alarmtime = $('#timepicker').val();
-var alarmdatestring = dtstring + " " + alarmtime;
-console.log('alarm datetime: ' + alarmdatestring);
-var adate = new Date(alarmdatestring);
-var newday = dt.getDate();
-var alarmtype = $('#alarmtype').val();
-if(dt > adate){
-newday = dt.getDate()*1 + 1;
-}
-adate.setDate(newday);
-console.log('alarm date is: ' + adate);
-if(alarmaction == "Set Alarm"){
-var alarm = new Alarm
-if(username == "" || username == undefined){
-username = sessionid;
-}
-alarm.set('username', username);
-alarm.set('datetime', adate);
-alarm.set('alarm_type', alarmtype);
-alarm.set('set', true);
-activealarm = alarm;
-$('#alarm-indicator').show();
-$('#alarm-button').text("Unset Alarm");
-var alarmdate = new Date(activealarm.get('datetime'));
-var timestring = formatTime(alarmdate);
-$('#alarm-indicator').tooltip({title: timestring});
-}
-else{
-//actalarm = new Alarm(activealarm);
-activealarm.set("set", false);
-//activealarm = {};
-$('#alarm-indicator').tooltip('destroy');
-$('#alarm-indicator').hide();
-$('#alarm-button').text("Set Alarm");
-}
-//$('#alarm-button').attr('onclick', unsetAlarm);
-}
 
-function unsetAlarm(){
 
-//$('#alarm-button').attr('onclick', setAlarm);
-}
 
-function getDateString(dt){
-var dateday = dt.getDate();
-var datemonth = dt.getMonth()*1 + 1;
-var dateyear = dt.getFullYear();
-var dtstring = datemonth + "/" + dateday + "/" + dateyear;
-return dtstring; 
-}
 
-function emitSilenceEvent(){
-socket.emit('silence-alarm', activealarm);
-}
 
-function silenceAlarm(alarm){
-alarm = new Alarm(alarm);
-var musicareastring = alarm.get("music_area");
-$(musicareastring).attr("src", "");
-//var newdateday = new Date(alarm.get("datetime")).getDate()*1 + 1;
-var newdateday = new Date().getDate()+1;
-console.log('new date day: ' + newdateday);
-var newdate = new Date().setDate(newdateday);
-console.log('new date is: ' + newdate);
-activealarm.set("datetime", newdate);
-activealarm.set("set", true);
-socket.emit('add-alarm', activealarm);
-}
 
-$(window).resize(function(){
-var winheight = $(window).height();
-var clockheight = $('#clock_container').height();
-var topmargin = ((winheight/2) - (clockheight/2));
-console.log('top margin is: ' + topmargin);
-$('#clock_container').css('margin-top', topmargin+"px");
-setFontSize();
-});
 
-function setClock(){
 
-var now = new Date();
-
-var hours = (now.getHours() > 12) ? now.getHours() - houroffset*1 : now.getHours();
-hours = (hours == 0) ? 12 : hours;
-var ampm = (now.getHours() >= 12) ? " PM" : " AM";
-var mins = (now.getMinutes() <10) ? "0" + now.getMinutes() : now.getMinutes();
-var secs = (now.getSeconds() <10) ? "0" + now.getSeconds() : now.getSeconds();
-$('#hours').text(hours+"");
-$('.dot').text(":");
-$('#minutes').text(mins+"");
-$('#seconds').text(secs+"");
-$('#ampm').text(ampm+"");
-}

@@ -33,52 +33,11 @@ $('#clock_container').css('margin-top', topmargin+"px");
 	setClock();
 setInterval("setClock()", 1000);
 $('#timepicker').timepicker({minuteStep: 1});
+setButtonClick();
 });
+
 var visvar = 1;
-function hideSeconds(){
-$('#secondsdot').hide();
-$('#seconds').hide();
-visvar = 0;
-}
 
-function showSeconds(){
-$('#secondsdot').show();
-$('#seconds').show();
-}
-
-function toggleSettings(){
-$('#settings-container').slideToggle();
-}
-
-function showAlarmSettings(){
-var selectedalarm = $('#alarmtype').val();
-if(selectedalarm == "groovesharkAlarm"){
-$('#groovesharkrow').show();
-}
-else{
-$('#groovesharkrow').hide();
-}
-}
-
-function toggleSeconds(){
-	if (visvar == 1) {
-		hideSeconds();
-	}
-	else{
-		showSeconds();
-	}
-}
-
-function toggleTime(){
-if(houroffset == 12){
-	houroffset = 0;
-	$('#ampm').hide();
-}
-else{
-	houroffset = 12;
-	$('#ampm').show();
-}
-}
 
 </script>
 </head>
@@ -108,14 +67,14 @@ else{
 </div>
 <div class="span4">
 <span id='alarm-select-div' class=''>
-<ul class="nav nav-pills">
-			<li class='info-text'>Alarm Type:</li>
-              <li class="dropdown info-text">
-                <a class="dropdown-toggle" id="alarmdropdown" role="button" data-toggle="dropdown" href="#">Basic Alarm <b class="caret"></b></a>
+<ul class="nav nav-pills center">
+			<!--<li class='info-text center'>Alarm Type:</li>-->
+              <li class="dropdown info-text center">
+                <a class="dropdown-toggle" id="alarmdropdown" role="button" data-toggle="dropdown" value='basicAlarm' href="#">Basic Alarm <b class="caret"></b></a>
                 <ul id="alarmmenu" class="dropdown-menu" role="menu" aria-labelledby="alarmdropdown">
-                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Grooveshark Alarm</a></li>
-                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Pandora Alarm</a></li>
-                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Radio Alarm</a></li>
+                  <li role="presentation"><a role="menuitem" onclick='populateDropdownText(this)' tabindex="-1" value='groovesharkAlarm' href="#">Grooveshark Alarm</a></li>
+                  <li role="presentation"><a role="menuitem" onclick='populateDropdownText(this)' tabindex="-1" value='pandoraAlarm' href="#">Pandora Alarm</a></li>
+                  <li role="presentation"><a role="menuitem" onclick='populateDropdownText(this)' tabindex="-1" value='radioAlarm' href="#">Radio Alarm</a></li>
                 </ul>
               </li>
             </ul>
@@ -127,10 +86,10 @@ else{
 </span>
 </div>
 <div class="span4">
-<button id='alarm-button' class='btn btn-primary' onclick='setAlarm()'>Set Alarm</button>
+<button id='alarm-button' class='btn btn-primary' >Set Alarm</button>
 </div>
 </div>
-<div id='groovesharkrow' class='row'>
+<div id='groovesharkrow' class='row-fluid'>
 <div class='span6'>
 <label class='info-text pull-left'>Search Grooveshark for Song
 <input type='text' class='text-input' id='groovesharksearch' /></label>&nbsp;&nbsp;</div>
@@ -154,6 +113,19 @@ else{
   <div class="modal-footer">
     <button onclick='emitSilenceEvent(activealarm)' class="btn" data-dismiss="modal" aria-hidden="true">Silence Alarm</button>
 	<button onclick='snoozeAlarm(activealarm)' data-dismiss="modal" class="btn btn-primary">Snooze</button>
+  </div>
+</div>
+
+<div id="alarmsettings" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Choose Alarm Settings</h3>
+  </div>
+  <div class="modal-body">
+  </div>
+  <div class="modal-footer">
+    <button onclick='emitSilenceEvent(activealarm)' class="btn" data-dismiss="modal" aria-hidden="true">Ok</button>
+	<button onclick='snoozeAlarm(activealarm)' data-dismiss="modal" class="btn btn-primary">Cancel</button>
   </div>
 </div>
 

@@ -6,9 +6,10 @@ var sessionStore = new MemoryStore();
 var port = process.env.PORT || 8080
 //var mongoose = require('mongoose');
 var filehome = "C:/nodeapps/alarm-clock/public/files/";
-var clients = {};
+var clients = [];
 var alarms = [];
-var users = {};
+var users = [];
+var sockets = [];
 var app = require('express')()
   , server = require('http').createServer(app)
   , io = require('socket.io').listen(server);
@@ -72,7 +73,7 @@ session_id: String
 var clientSchema = mongoose.Schema({
 username: String,
 sessionid: String,
-Sockets: Array
+Sockets: String
 });
 
 var socketSchema = mongoose.Schema({
@@ -188,23 +189,28 @@ io.set('authorization', function(data, accept){
 
 
 io.set('log level', 2);
+
 io.sockets.on('connection', function (socket) {
 console.log('A socket with sessionID ' + socket.handshake.sessionID 
         + ' connected!');
-	//var sockstring = JSON.stringify(socket);
-	//console.log(socket);
+
 	var sock = new Socket({socket: socket.id, connected_on: new Date()});
 	sock.save(function (err) {
 	if (err) return handleError(err);
 		console.log('socket saved to db');
-		})
-	clients[socket.id] = socket;
+		});
+	sockets.push(sock);
+	var client = new Client({sessionid: socket.handshake.sessionID, socket: socket.id});
+	//clients[socket.id] = socket;
 	if(socket.handshake.username == undefined || socket.handshake.username == ""){
 	var currentusername = socket.handshake.sessionID;
 	}
 	else{
 	var currentusername = socket.handshake.username;
 	}
+	client.set('username', currentusername);
+	clients.push(client);
+	////
 	var curruser = users[currentusername];
 	var curru = User.find({ username: currentusername});
 	console.log('current user is: ' + curru);
@@ -220,7 +226,9 @@ console.log('A socket with sessionID ' + socket.handshake.sessionID
 	curruser.sockets.push(socket);
 	users[currentusername] = curruser;
 	}
+	
 	var alarmlist = getAlarms(currentusername);
+	
 	socket.emit('socket-id', {socketid: socket.id});
 	socket.emit('session-id', {sessionid: socket.handshake.sessionID});
 	socket.emit('send-alarms', {alarms: alarmlist});

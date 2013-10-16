@@ -6,10 +6,12 @@ console.log("Connected to Server");
 });
   
 socket.on('socket-id', function(data){
+console.log('recieving socket id');
 socketid = data.socketid;
 });
 
 socket.on('session-id', function(data){
+console.log('recieving session id');
 sessionid = data.sessionid;
 });
 

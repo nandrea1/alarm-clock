@@ -2,20 +2,20 @@ var Alarm = Backbone.Model.extend( {
 
 initialize: function(){
 
-            this.on("change:set", function(model){
-				if(model.get("set")){
+            this.on("change:is_set", function(model){
+				if(model.get("is_set")){
                 socket.emit('add-alarm', model);
 				
 				
 				}
-				else if(!model.get("set")){
+				else if(!model.get("is_set")){
 				socket.emit('remove-alarm', model);
 				
 				}
             });},
 defaults: {
 "username": "",
-"set": false,
+"is_set": false,
 "time": "",
 "date": "",
 "datetime": "",
@@ -58,32 +58,14 @@ basicAlarm: function() {
 
 $('#alarmmodal').modal({remote: '/files/alarmwindowbody.html', keyboard:false});
 
-/*
-var alarmoff = confirm('Alarm Activated! Click Ok to silence, Cancel to Snooze');
-if(alarmoff){
-socket.emit('silence-alarm', this);
-this.unsetAlarm();
-}
-else{
-socket.emit('remove-alarm', this);
-console.log('Alarm Snoozed');
-var snoozetime = this.get("snooze_time");
-console.log("snooze time is: " + snoozetime);
-console.log('old time is: ' + this.get("datetime"));
-var  newdate = new Date(new Date().getTime()*1 + 1*this.get("snooze_time"));
-console.log('calc date is: ' + newdate);
-this.set("datetime", newdate);
-console.log('new time is: ' + this.datetime);
-socket.emit('add-alarm', this);
-}*/
 },
 
 setAlarm: function(){
-this.set = true;
+this.is_set = true;
 },
 
 unsetAlarm: function(){
-	this.set = false;
+	this.is_set = false;
 },
 
 setAlarmType: function(type){

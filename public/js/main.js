@@ -253,12 +253,12 @@ var adt = getAlarmDate();
 pendingalarm.set('datetime', adt);
 activealarm = undefined;
 activealarm = pendingalarm.clone();
-activealarm.set('set', true);
+activealarm.set('is_set', true);
 //pendingalarm = undefined;
 }
 
 function unsetPendingAlarm(){
-activealarm.set("set", false);
+activealarm.set("is_set", false);
 activealarm = undefined;
 }
 
@@ -284,7 +284,7 @@ console.log('new date day: ' + newdateday);
 var newdate = new Date().setDate(newdateday);
 console.log('new date is: ' + newdate);
 activealarm.set("datetime", newdate);
-activealarm.set("set", true);
+activealarm.set("is_set", true);
 socket.emit('add-alarm', activealarm);
 }
 

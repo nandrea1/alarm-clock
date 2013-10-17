@@ -8,6 +8,7 @@ var pendingalarm;
 var alarmcount = 0;
 var groovesharkkey = 'b25a7402df222ad00acd2030db1065ad';
 var groovesharkroot = 'http://tinysong.com/b/';
+var music;
 
 /***** Initialization Functions *****/
 
@@ -241,6 +242,8 @@ pendingalarm.set('alarm_type', atype);
 
 
 function emitSilenceEvent(){
+console.log('Alarm id is: ' + activealarm.get('_id'));
+activealarm.set('is_set' , false);
 socket.emit('silence-alarm', activealarm);
 }
 
@@ -263,29 +266,38 @@ activealarm = undefined;
 }
 
 function snoozeAlarm(){
-socket.emit('remove-alarm', activealarm);
+//socket.emit('remove-alarm', activealarm);
+activealarm.set('is_set', false);
+music.pause();
+music.currentTime = 0;
+music = undefined;
 console.log('Alarm Snoozed');
 var snoozetime = activealarm.get("snooze_time");
 console.log("snooze time is: " + snoozetime);
 console.log('old time is: ' + activealarm.get("datetime"));
-var  newdate = new Date(activealarm.get("datetime").getTime() + 1*activealarm.get("snooze_time"));
+var  newdate = new Date(new Date(activealarm.get("datetime")).getTime() + 1*activealarm.get("snooze_time"));
 console.log('calc date is: ' + newdate);
 activealarm.set("datetime", newdate);
 console.log('new time is: ' + activealarm.get('datetime'));
-socket.emit('add-alarm', activealarm);
+activealarm.set('is_set', true);
 }
 
 function silenceAlarm(alarm){
+alarm._id = undefined;
 alarm = new Alarm(alarm);
 var musicareastring = alarm.get("music_area");
 $(musicareastring).attr("src", "");
+$(musicareastring).html("");
+music.pause();
+music.currentTime = 0;
+music = undefined;
 var newdateday = new Date().getDate()+1;
-console.log('new date day: ' + newdateday);
+//console.log('new date day: ' + newdateday);
 var newdate = new Date().setDate(newdateday);
-console.log('new date is: ' + newdate);
+//console.log('new date is: ' + newdate);
 activealarm.set("datetime", newdate);
 activealarm.set("is_set", true);
-socket.emit('add-alarm', activealarm);
+//socket.emit('add-alarm', activealarm);
 }
 
 /***** --------- *****/

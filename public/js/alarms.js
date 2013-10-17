@@ -14,6 +14,7 @@ initialize: function(){
 				}
             });},
 defaults: {
+"_id" : undefined,
 "username": "",
 "is_set": false,
 "time": "",
@@ -25,12 +26,13 @@ defaults: {
 "radio_station": "",
 "snooze_time": 120000,
 "complexity": "",
+"alarm_volume": 1,
 "email_notify":"",
 "notify_addresses": [],
 "snooze_limit": 5,
 "gradual_volume": false,
 "alarm_type": "",
-"music_area": "",
+"music_area": "#musicdiv",
 },
 checkAlarm: function (){
 dats = new Date(this.datetime);
@@ -57,7 +59,11 @@ console.log("error");
 basicAlarm: function() {
 
 $('#alarmmodal').modal({remote: '/files/alarmwindowbody.html', keyboard:false});
-
+if(music == undefined){
+music = new Audio('/files/alarmclock.wav');
+music.loop = true;
+music.play();
+}
 },
 
 setAlarm: function(){

@@ -6,9 +6,8 @@ var host = "http://" + top.location.hostname;
 var activealarm;
 var pendingalarm;
 var alarmcount = 0;
-var groovesharkkey = 'b25a7402df222ad00acd2030db1065ad';
-var groovesharkroot = 'http://tinysong.com/b/';
 var music;
+var host = top.location.protocol + top.location.host;
 
 /***** Initialization Functions *****/
 
@@ -320,9 +319,27 @@ console.log('grooveshark key: ' + searchurl);
 $.getJSON(searchurl, function(data){console.log(data);});
 }
 
+function xDomainAjaxTest(){
+var data = {method: 'getResultsInitial', startindex:0, pagesize:15, r:90037418};
+var url = 'https://www.lendingclub.com/browse/browseNotesAj.action?';
+$.ajax({
+url: url,
+type: 'post',
+success : function(response){
+        console.log(response);
+        
+    },
+    error: function(error){
+        console.warn('ERROR');
+        console.warn(error);
+    }
+});
+}
+
 function getSongAjax(){
 var searchstring = $('#groovesharksearch').val();
-var searchurl = groovesharkroot + searchstring + '?format=json&key=' + groovesharkkey;
+//var searchurl = host +'/searchSong/' + searchstring;
+var searchurl = '/searchSong/' + searchstring;
 console.log('grooveshark key: ' + searchurl);
 $.ajax({
     url : searchurl,

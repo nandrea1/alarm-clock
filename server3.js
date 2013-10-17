@@ -2,6 +2,7 @@ var express =require('express');
 var mongoose = require('mongoose');
 var fs = require('fs');
 var Logger = require('./Logger');
+var rest = require('./restler');
 var MemoryStore = express.session.MemoryStore;
 var sessionStore = new MemoryStore();
 var port = process.env.PORT || 8080
@@ -11,6 +12,8 @@ var clients = [];
 var alarms = [];
 var users = [];
 var sockets = {};
+var groovesharkkey = 'b25a7402df222ad00acd2030db1065ad';
+var groovesharkroot = 'http://tinysong.com/b/';
 var dberror = false;
 //var connectstring = 'mongodb://nandrea1:caca2tu5c@ds043378.mongolab.com:27017/alarm_db';
 var connectstring = 'mongodb://admin:alarmclockdev@localhost:27017/alarm-clock-db'
@@ -162,7 +165,14 @@ app.get('/getSockets', function (req, res) {
   res.send(socketidarray);
 });
 
-
+app.get('/searchSong/:searchstring', function(req, res){
+var searchurl = groovesharkroot + req.params.searchstring + '?format=json&key=' + groovesharkkey;
+logger.info('requesting ' + searchurl);
+rest.get(searchurl).on('complete', function(data) {
+  logger.info(data)
+  res.send(data);
+});
+});
 
 app.get('/getClients', function (req, res) {
   Client.find({}).exec(function(err, result){
@@ -203,6 +213,11 @@ curralarm.trigger();
 
 
 /***** ------------------- ******/
+
+/***** Service Call Functions *****/
+
+
+/***** -------------------- ******/
 
 /***** Miscellaneous (Utility) Functions *****/
 

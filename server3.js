@@ -17,8 +17,8 @@ var sockets = {};
 var groovesharkkey = 'b25a7402df222ad00acd2030db1065ad';
 var groovesharkroot = 'http://tinysong.com/b/';
 var dberror = false;
-//var connectstring = 'mongodb://nandrea1:caca2tu5c@ds043378.mongolab.com:27017/alarm_db';
-var connectstring = 'mongodb://admin:alarmclockdev@localhost:27017/alarm-clock-db'
+var connectremotestring = 'mongodb://nandrea1:caca2tu5c@ds043378.mongolab.com:27017/alarm_db';
+var connectlocalstring = 'mongodb://admin:alarmclockdev@localhost:27017/alarm-clock-db'
 var app = require('express')()
   , server = require('http').createServer(app)
   , io = require('socket.io').listen(server);
@@ -30,10 +30,18 @@ app.use(express.cookieSession({ store: sessionStore, secret: 'secretkeysareforal
 server.listen(port);
 
 /////// DB Functions ////////
-mongoose.connect(connectstring);
+mongoose.connect(connectremotestring);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
-db.on('error', function(){dberror=true});
+db.on('error', function(){
+logger.info('falling back to local database');
+mongoose.connect(connectlocalstring);
+var db = mongoose.connection;
+db.on('error', function(){logger.info('could not connect to remote or local db');
+dberror = true;
+});
+
+});
 db.once('open', function callback () {
   logger.info('DB Connection Successful');
   

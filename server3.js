@@ -56,6 +56,9 @@ db.on('error', function(){
 	logger.info('falling back to local db');
 	mongoose.connect(connectlocalstring);
 	var localdb = mongoose.connection;
+	
+localdb.once('open', function callback(){logger.info('successfully connected to local DB');
+});
 	localdb.on('error', function(){
 		logger.info('could not connect to remote DB or local DB');
 		dberror = true;
@@ -66,8 +69,6 @@ db.once('open', function callback(){logger.info('successfully connected to remot
 
 });
 
-localdb.once('open', function callback(){logger.info('successfully connected to local DB');
-});
 }
 
 connectToDb();

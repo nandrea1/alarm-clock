@@ -30,7 +30,7 @@ app.use(express.cookieSession({ store: sessionStore, secret: 'secretkeysareforal
 server.listen(port);
 
 /////// DB Functions ////////
-mongoose.connect(connectremotestring);
+/*ngoose.connect(connectremotestring);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.on('error', function(){
@@ -45,8 +45,32 @@ dberror = true;
 db.once('open', function callback () {
   logger.info('DB Connection Successful');
   
+});*/
+
+function connectToDb(){
+mongoose.connect(connectremotestring);
+var db = mongoose.connection;
+
+db.on('error', function(){
+	logger.info('could not connect to remote database located at ' + connectremotestring);
+	logger.info('falling back to local db');
+	mongoose.connect(connectlocalstring);
+	var localdb = mongoose.connection;
+	localdb.on('error', function(){
+		logger.info('could not connect to remote DB or local DB');
+		dberror = true;
+	});
 });
 
+db.once('open', function callback(){logger.info('successfully connected to remote DB');
+
+});
+
+localdb.once('open', function callback(){logger.info('successfully connected to local DB');
+});
+}
+
+connectToDb();
 ////// Schemas ///////
 
 var alarmSchema = mongoose.Schema({

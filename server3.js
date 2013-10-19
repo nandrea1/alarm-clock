@@ -457,7 +457,7 @@ logger.info('A socket with sessionID ' + socket.handshake.sessionID
 	else{
 	var currentusername = socket.handshake.username;
 	}
-	var client = new Client({sessionid: socket.handshake.sessionID, socket: socket.id, username: currentusername});
+	var client = new Client({sessionid: socket.handshake.sessionID, socket: socket.id, username: currentusername, connected_on: new Date()});
 	client.save(function (err) {
 	if (err) return handleError(err);
 		logger.info('Client saved to db');
@@ -472,7 +472,7 @@ logger.info('A socket with sessionID ' + socket.handshake.sessionID
 	logger.info("No Database user with username " + currentusername + " found");
 	var usersockets = new Array();
 	usersockets.push(socket.id);
-	localuser = new User({username: currentusername, session_id: socket.handshake.sessionID, active_sockets: usersockets});
+	localuser = new User({username: currentusername, session_id: socket.handshake.sessionID, active_sockets: usersockets, last_login: new Date()});
 	localuser.save(function (err) {
 	if (err) return handleError(err);
 		logger.info('User saved to db');
@@ -480,6 +480,7 @@ logger.info('A socket with sessionID ' + socket.handshake.sessionID
 	}
 	else{
 	result.active_sockets.push(socket.id);
+	result.last_login = new Date();
 	result.save();
 	//User.update({username: currentusername}, result[0], {upsert=true}, function(err){console.log(err);});
 	}

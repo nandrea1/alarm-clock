@@ -17,7 +17,7 @@ var sockets = {};
 var groovesharkkey = 'b25a7402df222ad00acd2030db1065ad';
 var groovesharkroot = 'http://tinysong.com/b/';
 var dberror = false;
-var connectremotestring = 'mongodb://nandrea1:caca2tu5c@ds043378.mongolab.com:27017/alarm_db';
+var connectremotestring = 'mongodb://nandrea1:caca2tu5c@ds043378.mongolab.com:43378/alarm_db';
 var connectlocalstring = 'mongodb://admin:alarmclockdev@localhost:27017/alarm-clock-db'
 var app = require('express')()
   , server = require('http').createServer(app)
@@ -52,6 +52,7 @@ mongoose.connect(connectremotestring);
 var db = mongoose.connection;
 
 db.on('error', function(){
+if(dberror == false){
 	logger.info('could not connect to remote database located at ' + connectremotestring);
 	logger.info('falling back to local db');
 	mongoose.connect(connectlocalstring);
@@ -60,9 +61,12 @@ db.on('error', function(){
 localdb.once('open', function callback(){logger.info('successfully connected to local DB');
 });
 	localdb.on('error', function(){
+		if(dberror == false){
 		logger.info('could not connect to remote DB or local DB');
 		dberror = true;
+		}
 	});
+	}
 });
 
 db.once('open', function callback(){logger.info('successfully connected to remote DB');
@@ -72,6 +76,13 @@ db.once('open', function callback(){logger.info('successfully connected to remot
 }
 
 connectToDb();
+/*mongoose.connect('mongodb://nandrea1:caca2tu5c@ds043378.mongolab.com:27017/alarm_db');
+db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function callback () {
+  logger.info('DB Connection Successful');
+  
+});*/
 ////// Schemas ///////
 
 var alarmSchema = mongoose.Schema({

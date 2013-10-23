@@ -197,52 +197,6 @@ app.get('/getAlarms', function (req, res) {
 });
 });
 
-/*app.get('/xDomainTest', function (req, res){
-
-var post_data = querystring.stringify({
-      'method' : 'getResultsInitial',
-      'startindex': 0,
-      'pagesize': 15,
-        'r' : 90037418
-  });
-  
-   var post_options = {
-      host: 'https://lendingclub.com',
-      port: '80',
-      path: '/browse/browseNotesAj.action?',
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Content-Length': post_data.length
-      }
-  };
-  
- var post_req = http.request(post_options, function(res) {
-      res.setEncoding('utf8');
-      res.on('data', function (chunk) {
-          console.log('Response: ' + chunk);
-		  res.send(data);
-      });
-  }).on('error',function(e){
-   console.log("Error: \n" + e.message); 
-   console.log( e.stack );
-});;
-
-  // post the data
-  post_req.write(post_data);
-  post_req.end();
-
-
-
-
-var data = {method: 'getResultsInitial', startindex:0, pagesize:15, r:90037418};
-var url = 'https://www.lendingclub.com/browse/browseNotesAj.action?';
-rest.post(url, {data: data}).on('complete', function(data, response){
-console.log(data);
-console.log(response);
-res.send(data);
-});
-});*/
 
 app.get('/pandoraLogin', function(req, res){
 var loginurl = pandoraroot + "auth.partnerLogin";

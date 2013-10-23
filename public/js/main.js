@@ -158,6 +158,24 @@ $('#alarm-button').text("Set Alarm");
 
 /***** Miscellaneous Functions *****/
 
+function validateForm(id){
+var inputs = $(id + " :input:not(button)");
+var checkvar = true;
+for(var i=0; i<inputs.length; i++){
+var input = inputs[i];
+var val = $(input).val();
+if(val == "" || val == "undefined"){
+checkvar = false;
+}
+}
+if(checkvar){
+$(id + " button").removeAttr('disabled');
+}
+else{
+$(id + " button").attr('disabled', 'disabled');
+}
+}
+
 function formatTime(date){
 var hours = (date.getHours() > 12) ? date.getHours()-12 : date.getHours();
 var mins = date.getMinutes <10 ? "0" + date.getMinutes() : date.getMinutes();
@@ -212,6 +230,7 @@ pendingalarm.set('alarm_type', atype);
 
 /***** Interaction Driven Functions *****/
 
+
 function setButtonClick(){
 $('#alarm-button').click(function(){
 console.log('clicked alarm button');
@@ -244,6 +263,17 @@ function emitSilenceEvent(){
 console.log('Alarm id is: ' + activealarm.get('_id'));
 activealarm.set('is_set' , false);
 socket.emit('silence-alarm', activealarm);
+}
+
+// Driven by clicking the Log In Text //
+
+function loginModal(){
+$('#login-button').click(function(){
+var uname = $('#username').val();
+var pword = $('#password').val();
+console.log ('Logging in with Username: ' + uname + " and password " + pword);
+});
+$('#login-modal').modal('show');
 }
 
 /***** ------------------------- *****/
@@ -319,22 +349,6 @@ console.log('grooveshark key: ' + searchurl);
 $.getJSON(searchurl, function(data){console.log(data);});
 }
 
-function xDomainAjaxTest(){
-var data = {method: 'getResultsInitial', startindex:0, pagesize:15, r:90037418};
-var url = 'https://www.lendingclub.com/browse/browseNotesAj.action?';
-$.ajax({
-url: url,
-type: 'post',
-success : function(response){
-        console.log(response);
-        
-    },
-    error: function(error){
-        console.warn('ERROR');
-        console.warn(error);
-    }
-});
-}
 
 function getSongAjax(){
 var searchstring = $('#groovesharksearch').val();

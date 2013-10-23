@@ -16,6 +16,15 @@ var users = [];
 var sockets = {};
 var groovesharkkey = 'b25a7402df222ad00acd2030db1065ad';
 var groovesharkroot = 'http://tinysong.com/b/';
+var pandoraroot = 'http://tuner.pandora.com/services/json/?method=';
+var pandoraAndroidObj = {
+username: "Android",
+password: "AC7IBG09A3DTSYM4R41UJWL07VLN8JI7",
+deviceModel: "android-generic",
+version: "5",
+includeUrls: true
+};
+var pandoraClientToken;
 var dberror = false;
 var connectremotestring = 'mongodb://nandrea1:caca2tu5c@ds043378.mongolab.com:43378/alarm_db';
 var connectlocalstring = 'mongodb://admin:alarmclockdev@localhost:27017/alarm-clock-db'
@@ -188,7 +197,7 @@ app.get('/getAlarms', function (req, res) {
 });
 });
 
-app.get('/xDomainTest', function (req, res){
+/*app.get('/xDomainTest', function (req, res){
 
 var post_data = querystring.stringify({
       'method' : 'getResultsInitial',
@@ -226,13 +235,24 @@ var post_data = querystring.stringify({
 
 
 
-/*var data = {method: 'getResultsInitial', startindex:0, pagesize:15, r:90037418};
+var data = {method: 'getResultsInitial', startindex:0, pagesize:15, r:90037418};
 var url = 'https://www.lendingclub.com/browse/browseNotesAj.action?';
 rest.post(url, {data: data}).on('complete', function(data, response){
 console.log(data);
 console.log(response);
 res.send(data);
+});
 });*/
+
+app.get('/pandoraLogin', function(req, res){
+var loginurl = pandoraroot + "auth.partnerLogin";
+rest.post(loginurl, pandoraAndroidObj).on('complete', function(data, response){
+console.log("pandora call successful!");
+console.log(data);
+console.log(response);
+pandoraClientToken = response.result.partnerAuthToken;
+console.log("client token: " + pandoraClientToken);
+});
 });
 
 app.get('/getUsers', function (req, res) {
